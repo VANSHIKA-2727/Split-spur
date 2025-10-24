@@ -22,6 +22,7 @@ export default function App() {
             <a href="/" rel="home" />
             <a href="/pagename">{t("NavigationMenu.pageName")}</a>
             <a href ="/loginpage">{t("NavigationMenu.loginPage")}</a>
+            <a href ="signup">{t("NavigationMenu.signUp")}</a>
           </NavMenu>
           <Routes pages={pages} />
         </QueryProvider>
