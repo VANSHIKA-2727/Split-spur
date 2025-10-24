@@ -17,7 +17,7 @@ export default function HomePage() {
       <TitleBar title={t("Split-spur")} />
       <Layout>
         <Layout.Section>
-         <Landing />
+        
         </Layout.Section>
       </Layout>
     </Page>
