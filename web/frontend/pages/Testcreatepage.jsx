@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { ChevronDown, Lightbulb, Target, Zap } from 'lucide-react';
+import Navbar from '../components/Navbar';
 
 const TestCreationFlow = () => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -63,27 +64,7 @@ const TestCreationFlow = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="bg-white border-b border-gray-200 px-6 py-4">
-        <div className="flex items-center justify-between max-w-7xl mx-auto">
-          <div className="flex items-center gap-8">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-black rounded"></div>
-              <span className="font-semibold text-lg">Splitspur</span>
-            </div>
-            <nav className="flex gap-6 text-sm">
-              <button className="text-gray-600 hover:text-gray-900">Dashboard</button>
-              <button className="text-gray-600 hover:text-gray-900">Tests</button>
-              <button className="text-gray-600 hover:text-gray-900">Insights</button>
-              <button className="text-gray-600 hover:text-gray-900">Analytics</button>
-            </nav>
-          </div>
-          <button className="bg-blue-600 text-white px-4 py-2 rounded text-sm font-medium hover:bg-blue-700">
-            + Create New Test
-          </button>
-          <button className="w-10 h-10 rounded-full bg-gray-900 text-white flex items-center justify-center text-sm flex-shrink-0"></button>
-        </div>
-      </div>
-
+      <Navbar />
      
       <div className="max-w-4xl mx-auto px-6 py-8">
         <div>

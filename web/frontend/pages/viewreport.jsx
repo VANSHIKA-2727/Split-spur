@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { TrendingUp, TrendingDown, ArrowLeft, Share2 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar } from 'recharts';
+import Navbar from '../components/Navbar';
 
 export default function SplitsurDashboard() {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -24,27 +25,7 @@ export default function SplitsurDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200 px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="w-8 h-8 bg-black rounded"></div>
-            <span className="text-xl font-bold">Splitspur</span>
-            <nav className="flex gap-6 ml-8">
-              <button className="text-sm font-medium text-gray-900">Dashboard</button>
-              <button className="text-sm text-gray-600">Tests</button>
-              <button className="text-sm text-gray-600">Insights</button>
-              <button className="text-sm text-gray-600">Analytics</button>
-            </nav>
-          </div>
-          <div className="flex items-center gap-3">
-            <button className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700">
-              + Create New Test
-            </button>
-            <button className="w-10 h-10 rounded-full bg-gray-900 text-white flex items-center justify-center text-sm flex-shrink-0"></button>
-          </div>
-        </div>
-      </header>
+      <Navbar />
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-6 py-6">
@@ -72,7 +53,7 @@ export default function SplitsurDashboard() {
             {/* Key Finding */}
             <div className="bg-white rounded-xl p-5 shadow-sm">
               <div className="flex items-start gap-3">
-                <div className="w-6 h-6 flex-shrink-0">💡</div>
+                <div className="w-6 h-6 flex-shrink-0"></div>
                 <div className="flex-1">
                   <h3 className="font-semibold text-gray-900 mb-2">Key Finding</h3>
                   <p className="text-sm text-gray-700 mb-3">The green CTA button in Variant B outperformed the blue one, especially with first-time visitors.</p>
@@ -87,7 +68,7 @@ export default function SplitsurDashboard() {
             {/* Statistical Note */}
             <div className="bg-white rounded-xl p-5 shadow-sm">
               <div className="flex items-start gap-3">
-                <div className="w-6 h-6 flex-shrink-0">💡</div>
+                <div className="w-6 h-6 flex-shrink-0"></div>
                 <div className="flex-1">
                   <h3 className="font-semibold text-gray-900 mb-2">Statistical Note</h3>
                   <p className="text-sm text-gray-700">Results are 75% confident across all user segments</p>
@@ -98,7 +79,7 @@ export default function SplitsurDashboard() {
             {/* Recommendation */}
             <div className="bg-white rounded-xl p-5 shadow-sm">
               <div className="flex items-start gap-3">
-                <div className="w-6 h-6 flex-shrink-0">💡</div>
+                <div className="w-6 h-6 flex-shrink-0"></div>
                 <div className="flex-1">
                   <h3 className="font-semibold text-gray-900 mb-2">Recommendation</h3>
                   <p className="text-sm text-gray-700 mb-3">Maximize impact by showing the green button</p>
@@ -136,7 +117,7 @@ export default function SplitsurDashboard() {
           <div className="bg-white rounded-lg border border-gray-200 p-5">
             <div className="flex items-center gap-2 mb-3">
               <div className="w-8 h-8 bg-blue-100 rounded flex items-center justify-center">
-                <span className="text-blue-600">📊</span>
+                <span className="text-blue-600"></span>
               </div>
               <span className="text-sm font-medium text-gray-700">Confidence</span>
             </div>
@@ -151,7 +132,7 @@ export default function SplitsurDashboard() {
           <div className="bg-white rounded-lg border border-gray-200 p-5">
             <div className="flex items-center gap-2 mb-3">
               <div className="w-8 h-8 bg-orange-100 rounded flex items-center justify-center">
-                <span className="text-orange-600">📅</span>
+                <span className="text-orange-600"></span>
               </div>
               <span className="text-sm font-medium text-gray-700">Test Duration</span>
             </div>

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { TrendingUp, ArrowLeft, Share2, Search, Filter, ChevronDown, X } from 'lucide-react';
+import Navbar from '../components/Navbar';
 
 export default function SplitsurTestsDashboard() {
   const [sortBy, setSortBy] = useState('last_updated');
@@ -165,28 +166,7 @@ export default function SplitsurTestsDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200 px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="w-8 h-8 bg-black rounded"></div>
-            <span className="text-xl font-bold">Splitspur</span>
-            <nav className="flex gap-6 ml-8">
-              <button className="text-sm font-medium text-gray-900">Dashboard</button>
-              <button className="text-sm text-gray-600">Tests</button>
-              <button className="text-sm text-gray-600">Insights</button>
-              <button className="text-sm text-gray-600">Analytics</button>
-            </nav>
-          </div>
-          <div className="flex items-center gap-3">
-            <button className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700">
-              + Create New Test
-            </button>
-            <button className="w-8 h-8 rounded-full bg-gray-800 text-white flex items-center justify-center">
-            </button>
-          </div>
-        </div>
-      </header>
+      <Navbar />
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-6 py-6">

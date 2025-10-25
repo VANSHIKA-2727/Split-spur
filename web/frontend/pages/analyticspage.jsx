@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { TrendingUp, Users, Target, ArrowLeft, Calendar } from 'lucide-react';
+import Navbar from '../components/Navbar';
 
-const AnalyticsDashboard = () => {
+const Analyticspage = () => {
   const [activeTab, setActiveTab] = useState('trends');
 
   const stats = [
@@ -44,34 +45,8 @@ const AnalyticsDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200 px-6 py-4">
-        <div className="flex items-center justify-between max-w-7xl mx-auto">
-          <div className="flex items-center gap-8">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-black rounded"></div>
-              <span className="font-semibold text-lg">Splitspur</span>
-            </div>
-            <nav className="flex gap-6 text-sm">
-              <button className="text-gray-600 hover:text-gray-900">Dashboard</button>
-              <button className="text-gray-600 hover:text-gray-900">Tests</button>
-              <button className="text-gray-600 hover:text-gray-900">Insights</button>
-              <button className="text-gray-900 font-medium">Analytics</button>
-            </nav>
-          </div>
-          <div className="flex items-center gap-3">
-            <button className="bg-blue-600 text-white px-4 py-2 rounded text-sm font-medium hover:bg-blue-700">
-              + Create New Test
-            </button>
-            <button className="w-9 h-9 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-50">
-              <Calendar className="w-4 h-4 text-gray-600" />
-            </button>
-            <button className="w-9 h-9 rounded-full bg-gray-900 flex items-center justify-center text-white text-sm font-medium">
-              
-            </button>
-          </div>
-        </div>
-      </div>
+      <Navbar />
+      
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-6 py-8">
@@ -359,4 +334,4 @@ const AnalyticsDashboard = () => {
   );
 };
 
-export default AnalyticsDashboard;
+export default Analyticspage;

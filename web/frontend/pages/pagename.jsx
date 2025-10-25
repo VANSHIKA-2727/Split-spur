@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Navbar from '../components/Navbar';  
 import {
   BarChart3,
   CheckCircle,
@@ -95,54 +96,8 @@ export default function SplitspurLanding() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200 px-6 py-4">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-8">
-            {/* Logo - redirects to login page */}
-            <div
-              onClick={() => navigate('/')}
-              className="flex items-center gap-2 cursor-pointer"
-            >
-              <div className="w-6 h-6 bg-black rounded"></div>
-              <span className="text-xl font-bold">Splitspur</span>
-            </div>
+      <Navbar />
 
-            <nav className="flex gap-6 text-sm">
-              <a href="#" className="text-gray-700 hover:text-gray-900">
-                Dashboard
-              </a>
-              <a href="#" className="text-gray-700 hover:text-gray-900">
-                Tests
-              </a>
-              <a href="#" className="text-gray-700 hover:text-gray-900">
-                Insights
-              </a>
-              <a href="#" className="text-gray-700 hover:text-gray-900">
-                Analytics
-              </a>
-            </nav>
-          </div>
-
-          <div className="flex items-center gap-4">
-            {/* Create New Test */}
-            <button
-              onClick={() => navigate('/testcreatepage')}
-              className="bg-blue-600 text-white px-4 py-2 rounded text-sm font-medium hover:bg-blue-700"
-            >
-              + Create New Test
-            </button>
-
-            <button className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
-              <Bell className="w-4 h-4" />
-            </button>
-
-            <button className="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center text-white text-sm">
-              V
-            </button>
-          </div>
-        </div>
-      </header>
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-6 py-8">
@@ -229,7 +184,7 @@ export default function SplitspurLanding() {
 
                   <div className="flex gap-2">
                     <button className="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50 flex items-center gap-1">
-                      <span className="text-gray-600">⏸</span> Pause
+                      <span className="text-gray-600"></span> Pause
                     </button>
                     <button
                       onClick={() => navigate('/viewreport')}
@@ -398,7 +353,7 @@ export default function SplitspurLanding() {
             </div>
 
             <div>
-              <h4 className="font-semibold text-gray-900 mb-4">Resources</h4>
+              <h4 className="font-semibold text-gray-900 mb-4">Resources</h4> 
               <ul className="space-y-2 text-sm text-gray-600">
                 <li>
                   <a href="#" className="hover:text-gray-900">
