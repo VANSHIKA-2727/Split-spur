@@ -22,36 +22,15 @@ export default function SplitspurSignup() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 px-6 py-4">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-8">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-black rounded-lg"></div>
-              <span className="text-xl font-semibold">Splitspur</span>
-            </div>
-            <nav className="hidden md:flex items-center gap-6">
-              <a href="#" className="text-gray-700 hover:text-gray-900">Dashboard</a>
-              <a href="#" className="text-gray-700 hover:text-gray-900">Tests</a>
-              <a href="#" className="text-gray-700 hover:text-gray-900">Insights</a>
-              <a href="#" className="text-gray-700 hover:text-gray-900">Analytics</a>
-            </nav>
-          </div>
-          <div className="flex items-center gap-4">
-            <button className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition">
-              + Create New Test
-            </button>
-            <div className="w-10 h-10 bg-gray-200 rounded-full"></div>
-            <div className="w-10 h-10 bg-white border-2 border-gray-900 rounded-full flex items-center justify-center">
-              <div className="w-6 h-6 bg-gray-900 rounded-full"></div>
-            </div>
-          </div>
-        </div>
-      </header>
+<header className="bg-white border-b border-gray-200 px-6 py-4">
+  <div className="max-w-7xl mx-auto flex items-center">
+    <div className="flex items-center gap-3">
+      <div className="w-10 h-10 bg-black rounded-lg"></div>
+      <span className="text-xl font-semibold">Splitspur</span>
+    </div>
+  </div>
+</header>
 
-      {/* New User Link */}
-      <div className="text-right px-6 py-2">
-        <a href="#" className="text-sm text-gray-600 hover:text-gray-900">New User?</a>
-      </div>
 
       {/* Main Content */}
       <main className="flex-1 flex items-center justify-center px-6 py-12">

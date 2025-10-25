@@ -1,14 +1,18 @@
 import React, { useState } from 'react';
 import { Mail, Lock } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+  // ✅ Import this
 
 export default function SplitspurLogin() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [subscribeEmail, setSubscribeEmail] = useState('');
+  const navigate = useNavigate(); // ✅ Initialize navigation
 
   const handleSignIn = (e) => {
     e.preventDefault();
     console.log('Sign in attempted with:', email);
+    navigate('/pagename'); // ✅ Navigate to the next page
   };
 
   const handleSubscribe = (e) => {
@@ -20,40 +24,17 @@ export default function SplitspurLogin() {
     <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* Header */}
       <header className="bg-white border-b border-gray-200 px-6 py-4">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-8">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-black rounded-lg"></div>
-              <span className="text-xl font-semibold">Splitspur</span>
-            </div>
-            <nav className="hidden md:flex items-center gap-6">
-              <a href="#" className="text-gray-700 hover:text-gray-900">Dashboard</a>
-              <a href="#" className="text-gray-700 hover:text-gray-900">Tests</a>
-              <a href="#" className="text-gray-700 hover:text-gray-900">Insights</a>
-              <a href="#" className="text-gray-700 hover:text-gray-900">Analytics</a>
-            </nav>
-          </div>
-          <div className="flex items-center gap-4">
-            <button className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition">
-              + Create New Test
-            </button>
-            <div className="w-10 h-10 bg-gray-200 rounded-full"></div>
-            <div className="w-10 h-10 bg-white border-2 border-gray-900 rounded-full flex items-center justify-center">
-              <div className="w-6 h-6 bg-gray-900 rounded-full"></div>
-            </div>
+        <div className="max-w-7xl mx-auto flex items-center">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-black rounded-lg"></div>
+            <span className="text-xl font-semibold">Splitspur</span>
           </div>
         </div>
       </header>
 
-      {/* New User Link */}
-      <div className="text-right px-6 py-2">
-        <a href="#" className="text-sm text-gray-600 hover:text-gray-900">New User?</a>
-      </div>
-
       {/* Main Content */}
       <main className="flex-1 flex items-center justify-center px-6 py-12">
         <div className="w-full max-w-md">
-          {/* Logo and Welcome */}
           <div className="text-center mb-8">
             <div className="w-20 h-20 bg-black rounded-2xl mx-auto mb-6"></div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome to Splitspur</h1>
@@ -120,9 +101,13 @@ export default function SplitspurLogin() {
               {/* Sign Up Link */}
               <p className="text-center text-sm text-gray-600">
                 Don't have an account?{' '}
-                <a href="#" className="text-blue-600 hover:text-blue-700 font-medium">
+                <button
+                  type="button"
+                  onClick={() => navigate('/signup')} // ✅ Navigate to signup
+                  className="text-blue-600 hover:text-blue-700 font-medium"
+                >
                   Sign Up for free
-                </a>
+                </button>
               </p>
             </form>
           </div>
@@ -154,7 +139,7 @@ export default function SplitspurLogin() {
               </form>
             </div>
 
-            {/* Product Column 1 */}
+            {/* Product Columns */}
             <div>
               <h3 className="font-semibold text-gray-900 mb-3">Product</h3>
               <ul className="space-y-2 text-sm text-gray-600">
@@ -166,9 +151,8 @@ export default function SplitspurLogin() {
               </ul>
             </div>
 
-            {/* Product Column 2 */}
             <div>
-              <h3 className="font-semibold text-gray-900 mb-3">Product</h3>
+              <h3 className="font-semibold text-gray-900 mb-3">Company</h3>
               <ul className="space-y-2 text-sm text-gray-600">
                 <li><a href="#" className="hover:text-gray-900">About Us</a></li>
                 <li><a href="#" className="hover:text-gray-900">Blog</a></li>
@@ -176,7 +160,6 @@ export default function SplitspurLogin() {
               </ul>
             </div>
 
-            {/* Resources */}
             <div>
               <h3 className="font-semibold text-gray-900 mb-3">Resources</h3>
               <ul className="space-y-2 text-sm text-gray-600">
