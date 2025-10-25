@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Mail, Lock, User } from 'lucide-react';
+import { Mail, Lock } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 export default function SplitspurSignup() {
   const [fullName, setFullName] = useState('');
@@ -8,10 +9,16 @@ export default function SplitspurSignup() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [subscribeEmail, setSubscribeEmail] = useState('');
+  
+  const navigate = useNavigate(); // 👈 used for navigation
 
   const handleCreateAccount = (e) => {
     e.preventDefault();
     console.log('Account creation attempted');
+
+    // Add any validation or backend logic here
+    // For now, just navigate to /pagename
+    navigate('/pagename');
   };
 
   const handleSubscribe = (e) => {
@@ -22,20 +29,18 @@ export default function SplitspurSignup() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* Header */}
-<header className="bg-white border-b border-gray-200 px-6 py-4">
-  <div className="max-w-7xl mx-auto flex items-center">
-    <div className="flex items-center gap-3">
-      <div className="w-10 h-10 bg-black rounded-lg"></div>
-      <span className="text-xl font-semibold">Splitspur</span>
-    </div>
-  </div>
-</header>
-
+      <header className="bg-white border-b border-gray-200 px-6 py-4">
+        <div className="max-w-7xl mx-auto flex items-center">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-black rounded-lg"></div>
+            <span className="text-xl font-semibold">Splitspur</span>
+          </div>
+        </div>
+      </header>
 
       {/* Main Content */}
       <main className="flex-1 flex items-center justify-center px-6 py-12">
         <div className="w-full max-w-md">
-          {/* Logo and Welcome */}
           <div className="text-center mb-8">
             <div className="w-20 h-20 bg-black rounded-2xl mx-auto mb-6"></div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome to Splitspur</h1>
@@ -50,7 +55,7 @@ export default function SplitspurSignup() {
             </div>
 
             <div className="space-y-4">
-              {/* Full Name Field */}
+              {/* Full Name */}
               <div>
                 <label htmlFor="fullname" className="block text-sm font-medium text-gray-900 mb-2">
                   Full Name
@@ -65,7 +70,7 @@ export default function SplitspurSignup() {
                 />
               </div>
 
-              {/* Work Email Field */}
+              {/* Email */}
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-900 mb-2">
                   Work Email
@@ -83,7 +88,7 @@ export default function SplitspurSignup() {
                 </div>
               </div>
 
-              {/* Password Field */}
+              {/* Password */}
               <div>
                 <label htmlFor="password" className="block text-sm font-medium text-gray-900 mb-2">
                   Password
@@ -101,7 +106,7 @@ export default function SplitspurSignup() {
                 </div>
               </div>
 
-              {/* Confirm Password Field */}
+              {/* Confirm Password */}
               <div>
                 <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-900 mb-2">
                   Confirm Password
@@ -147,74 +152,17 @@ export default function SplitspurSignup() {
               {/* Sign In Link */}
               <p className="text-center text-sm text-gray-600 mt-4">
                 Already have an account?{' '}
-                <a href="#" className="text-blue-600 hover:text-blue-700 font-medium">
+                <button
+                  onClick={() => navigate('/')} // 👈 redirects to Login
+                  className="text-blue-600 hover:text-blue-700 font-medium"
+                >
                   Sign In
-                </a>
+                </button>
               </p>
             </div>
           </div>
         </div>
       </main>
-
-      {/* Footer */}
-      <footer className="bg-white border-t-4 border-blue-500 mt-auto">
-        <div className="max-w-7xl mx-auto px-6 py-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            {/* Stay Updated */}
-            <div>
-              <h3 className="font-semibold text-gray-900 mb-3">Stay Updated</h3>
-              <p className="text-sm text-gray-600 mb-4">Get the latest features and testing insights</p>
-              <div className="flex gap-2">
-                <input
-                  type="email"
-                  value={subscribeEmail}
-                  onChange={(e) => setSubscribeEmail(e.target.value)}
-                  placeholder="your@email.com"
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-                <button
-                  onClick={handleSubscribe}
-                  className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition text-sm"
-                >
-                  →
-                </button>
-              </div>
-            </div>
-
-            {/* Product Column 1 */}
-            <div>
-              <h3 className="font-semibold text-gray-900 mb-3">Product</h3>
-              <ul className="space-y-2 text-sm text-gray-600">
-                <li><a href="#" className="hover:text-gray-900">Features</a></li>
-                <li><a href="#" className="hover:text-gray-900">Pricing</a></li>
-                <li><a href="#" className="hover:text-gray-900">Documentation</a></li>
-                <li><a href="#" className="hover:text-gray-900">API Reference</a></li>
-                <li><a href="#" className="hover:text-gray-900">Integrations</a></li>
-              </ul>
-            </div>
-
-            {/* Product Column 2 */}
-            <div>
-              <h3 className="font-semibold text-gray-900 mb-3">Product</h3>
-              <ul className="space-y-2 text-sm text-gray-600">
-                <li><a href="#" className="hover:text-gray-900">About Us</a></li>
-                <li><a href="#" className="hover:text-gray-900">Blog</a></li>
-                <li><a href="#" className="hover:text-gray-900">Contact Us</a></li>
-              </ul>
-            </div>
-
-            {/* Resources */}
-            <div>
-              <h3 className="font-semibold text-gray-900 mb-3">Resources</h3>
-              <ul className="space-y-2 text-sm text-gray-600">
-                <li><a href="#" className="hover:text-gray-900">Help</a></li>
-                <li><a href="#" className="hover:text-gray-900">Community</a></li>
-                <li><a href="#" className="hover:text-gray-900">Tutorials</a></li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }

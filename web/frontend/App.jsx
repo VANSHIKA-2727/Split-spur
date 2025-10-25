@@ -41,7 +41,8 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Loginpage from "./pages/Loginpage.jsx";
 import Pagename from "./pages/Pagename.jsx";
-import Signup from "./pages/Signup.jsx";  
+import Signup from "./pages/Signup.jsx";
+
 export default function App() {
   return (
     <Router>
