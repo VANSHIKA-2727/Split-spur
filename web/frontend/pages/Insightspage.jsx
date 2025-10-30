@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import Navbar from '../components/Navbar';
+import { useNavigate } from "react-router-dom";
 
 export default function InsightsPage() {
   const [currentView, setCurrentView] = useState('all');
+   const navigate = useNavigate();
 
   const allInsights = [
     {
@@ -141,9 +143,12 @@ export default function InsightsPage() {
               <span className="px-3 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">
                 {insight.impact}
               </span>
-              <button className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700">
-                View Tests
-              </button>
+              <button
+      onClick={() => navigate("/Viewinsights")} // 👈 Redirect to View Tests page
+      className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700"
+    >
+      View Tests
+    </button>
             </div>
           </div>
         </div>

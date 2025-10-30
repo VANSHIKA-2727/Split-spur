@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { ChevronDown, Lightbulb, Target, Zap } from 'lucide-react';
-import Navbar from '../components/Navbar';
+// 'X' icon is already imported from our previous step
+import { ChevronDown, Lightbulb, Target, Zap, Menu, X } from 'lucide-react'; 
+import { useNavigate } from 'react-router-dom';
 
 const TestCreationFlow = () => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -16,6 +17,10 @@ const TestCreationFlow = () => {
   const [trafficSplit, setTrafficSplit] = useState('50/50 (Control vs Variant)');
   const [customControl, setCustomControl] = useState('');
   const [customVariant, setCustomVariant] = useState('');
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+
+  // 1. Add state for the new draft modal
+  const [showDraftModal, setShowDraftModal] = useState(false);
 
   const testTypes = [
     { value: 'full-page', label: 'Full Page Testing' },
@@ -56,16 +61,26 @@ const TestCreationFlow = () => {
     }
   };
 
-  const handlePrevStep = () => {
-    if (currentStep > 1) {
-      setCurrentStep(currentStep - 1);
+  const navigate = useNavigate();
+
+  const handlePrevStepClick = () => {
+    if (currentStep === 1) {
+      navigate("/Pagename"); // 👈 Redirect to dashboard when on step 1
+    } else {
+      setCurrentStep(currentStep - 1); // 👈 Otherwise go to previous step
+    }
+  };
+
+  const handleLaunchTest = () => {
+    if (currentStep === 3) {
+      setShowSuccessModal(true);
+    } else {
+      handleNextStep();
     }
   };
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navbar />
-     
       <div className="max-w-4xl mx-auto px-6 py-8">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 mb-1">Create New Test</h1>
@@ -77,11 +92,9 @@ const TestCreationFlow = () => {
             <React.Fragment key={step.num}>
               <div className="flex items-center gap-3">
                 <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium ${
-                  currentStep === step.num 
-                    ? 'bg-blue-600 text-white' 
-                    : currentStep > step.num
-                    ? 'bg-teal-600 text-white'
-                    : 'bg-gray-200 text-gray-600'
+                  currentStep === step.num ? 'bg-blue-600 text-white' :
+                  currentStep > step.num ? 'bg-teal-600 text-white' :
+                  'bg-gray-200 text-gray-600'
                 }`}>
                   {step.num}
                 </div>
@@ -129,7 +142,6 @@ const TestCreationFlow = () => {
                     </span>
                     <ChevronDown className="w-4 h-4 text-gray-400" />
                   </button>
-                  
                   {showDropdown && (
                     <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg">
                       {testTypes.map((type) => (
@@ -172,12 +184,10 @@ const TestCreationFlow = () => {
 
             <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
               <h3 className="font-medium text-gray-900 mb-4">Control Page Preview</h3>
-              
               <div className="border-2 border-teal-400 rounded-lg bg-teal-50 h-80 flex items-center justify-center relative">
                 <div className="absolute right-3 top-3 w-2 h-20 bg-gray-400 rounded"></div>
                 <p className="text-gray-500">Preview</p>
               </div>
-              
               <div className="flex justify-end mt-4">
                 <button className="px-4 py-2 bg-blue-600 text-white rounded text-sm font-medium hover:bg-blue-700">
                   Close Preview
@@ -245,9 +255,7 @@ const TestCreationFlow = () => {
                   Variant Fragment
                 </label>
                 <div className="border border-gray-300 rounded-md p-4 bg-gray-50">
-                  <p className="text-sm text-gray-500 text-center">
-                    Upload Code
-                  </p>
+                  <p className="text-sm text-gray-500 text-center"> Upload Code </p>
                   <div className="text-xs text-gray-400 text-center mt-1">OR</div>
                   <textarea
                     placeholder="Paste your variant HTML code here..."
@@ -343,7 +351,6 @@ const TestCreationFlow = () => {
                     <span className="text-gray-900">{successMetric}</span>
                     <ChevronDown className="w-4 h-4 text-gray-400" />
                   </button>
-                  
                   {showSuccessMetricDropdown && (
                     <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg">
                       {successMetrics.map((metric) => (
@@ -377,7 +384,6 @@ const TestCreationFlow = () => {
                     <span className="text-gray-900">{targetAudience}</span>
                     <ChevronDown className="w-4 h-4 text-gray-400" />
                   </button>
-                  
                   {showTargetAudienceDropdown && (
                     <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg">
                       {targetAudiences.map((audience) => (
@@ -411,7 +417,6 @@ const TestCreationFlow = () => {
                     <span className="text-gray-900">{trafficSplit}</span>
                     <ChevronDown className="w-4 h-4 text-gray-400" />
                   </button>
-                  
                   {showTrafficSplitDropdown && (
                     <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg">
                       {trafficSplits.map((split) => (
@@ -462,66 +467,95 @@ const TestCreationFlow = () => {
         )}
 
         {currentStep === 3 && (
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-5 mb-6">
-            <div className="flex items-start gap-3 mb-4">
-              <Zap className="w-5 h-5 text-blue-600 mt-0.5" />
-              <div className="flex-1">
-                <h3 className="font-medium text-gray-900 mb-1">Traffic Split</h3>
-                <p className="text-sm text-gray-600">
-                  Choose how traffic is distributed between variants
-                </p>
+          <>
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-5 mb-6">
+              <div className="flex items-start gap-3 mb-4">
+                <Zap className="w-5 h-5 text-blue-600 mt-0.5" />
+                <div className="flex-1">
+                  <h3 className="font-medium text-gray-900 mb-1">Traffic Split</h3>
+                  <p className="text-sm text-gray-600">
+                    Choose how traffic is distributed between variants
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-3 gap-4">
+                <div className="bg-white p-4 rounded-lg border border-blue-200">
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-8 h-8 bg-blue-600 rounded flex items-center justify-center">
+                      <Zap className="w-4 h-4 text-white" />
+                    </div>
+                    <div>
+                      <div className="font-medium text-sm">Equal Split</div>
+                      <div className="text-xs text-gray-500">(50/50)</div>
+                    </div>
+                  </div>
+                  <ul className="text-xs text-gray-700 space-y-1">
+                    <li>• Best for statistical accuracy</li>
+                    <li>• Recommended for most tests</li>
+                  </ul>
+                </div>
+
+                <div className="bg-white p-4 rounded-lg border border-blue-200">
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-8 h-8 bg-blue-600 rounded flex items-center justify-center">
+                      <Target className="w-4 h-4 text-white" />
+                    </div>
+                    <div>
+                      <div className="font-medium text-sm">Weighted Split</div>
+                      <div className="text-xs text-gray-500">(80/20)</div>
+                    </div>
+                  </div>
+                  <ul className="text-xs text-gray-700 space-y-1">
+                    <li>• Control gets majority traffic</li>
+                    <li>• Safer for testing major changes</li>
+                  </ul>
+                </div>
+
+                <div className="bg-white p-4 rounded-lg border border-blue-200">
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-8 h-8 bg-blue-600 rounded flex items-center justify-center">
+                      <Lightbulb className="w-4 h-4 text-white" />
+                    </div>
+                    <div>
+                      <div className="font-medium text-sm">Custom Ratio</div>
+                      <div className="text-xs text-gray-500">(Control/Variant)</div>
+                    </div>
+                  </div>
+                  <ul className="text-xs text-gray-700 space-y-1">
+                    <li>• Set your own percentages</li>
+                  </ul>
+                </div>
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-4">
-              <div className="bg-white p-4 rounded-lg border border-blue-200">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-8 h-8 bg-blue-600 rounded flex items-center justify-center">
-                    <Zap className="w-4 h-4 text-white" />
-                  </div>
-                  <div>
-                    <div className="font-medium text-sm">Equal Split</div>
-                    <div className="text-xs text-gray-500">(50/50)</div>
-                  </div>
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+              <h3 className="font-semibold text-gray-900 mb-4">Test Summary</h3>
+              <div className="grid grid-cols-2 gap-x-8 gap-y-3 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Test Type:</span>
+                  <span className="font-medium text-gray-900">Full Page</span>
                 </div>
-                <ul className="text-xs text-gray-700 space-y-1">
-                  <li>• Best for statistical accuracy</li>
-                  <li>• Recommended for most tests</li>
-                </ul>
-              </div>
-
-              <div className="bg-white p-4 rounded-lg border border-blue-200">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-8 h-8 bg-blue-600 rounded flex items-center justify-center">
-                    <Target className="w-4 h-4 text-white" />
-                  </div>
-                  <div>
-                    <div className="font-medium text-sm">Weighted Split</div>
-                    <div className="text-xs text-gray-500">(80/20)</div>
-                  </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Target Audience:</span>
+                  <span className="font-medium text-gray-900">{targetAudience}</span>
                 </div>
-                <ul className="text-xs text-gray-700 space-y-1">
-                  <li>• Control gets majority traffic</li>
-                  <li>• Safer for testing major changes</li>
-                </ul>
-              </div>
-
-              <div className="bg-white p-4 rounded-lg border border-blue-200">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-8 h-8 bg-blue-600 rounded flex items-center justify-center">
-                    <Lightbulb className="w-4 h-4 text-white" />
-                  </div>
-                  <div>
-                    <div className="font-medium text-sm">Custom Ratio</div>
-                    <div className="text-xs text-gray-500">(Control/Variant)</div>
-                  </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Success Metric:</span>
+                  <span className="font-medium text-gray-900">{successMetric}</span>
                 </div>
-                <ul className="text-xs text-gray-700 space-y-1">
-                  <li>• Set your own percentages</li>
-                </ul>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Traffic Split:</span>
+                  <span className="font-medium text-gray-900">
+                    {trafficSplit === 'Custom Ratio' && customControl && customVariant ?
+                      `${customControl}/${customVariant}` :
+                      trafficSplit.includes('50/50') ? '50/50' :
+                      trafficSplit.includes('80/20') ? '80/20' : '50/50'}
+                  </span>
+                </div>
               </div>
             </div>
-          </div>
+          </>
         )}
 
         <div className="bg-purple-50 border border-purple-200 rounded-lg p-5 mb-6">
@@ -542,7 +576,6 @@ const TestCreationFlow = () => {
                 {currentStep === 2 && testType === 'targeted' && 'Optimization suggestions for your variants'}
                 {currentStep === 3 && 'Based on your traffic'}
               </p>
-              
               <div className="space-y-2">
                 {currentStep === 1 && (
                   <>
@@ -566,7 +599,6 @@ const TestCreationFlow = () => {
                     </div>
                   </>
                 )}
-                
                 {currentStep === 2 && testType === 'full-page' && (
                   <div className="bg-white p-3 rounded border border-purple-100">
                     <div className="flex items-start gap-2">
@@ -581,7 +613,6 @@ const TestCreationFlow = () => {
                     </div>
                   </div>
                 )}
-
                 {currentStep === 2 && testType === 'fragmented' && (
                   <>
                     <div className="bg-white p-3 rounded border border-purple-100">
@@ -604,7 +635,6 @@ const TestCreationFlow = () => {
                     </div>
                   </>
                 )}
-
                 {currentStep === 2 && testType === 'targeted' && (
                   <div className="bg-white p-3 rounded border border-purple-100">
                     <div className="flex items-start gap-2">
@@ -616,13 +646,12 @@ const TestCreationFlow = () => {
                     </div>
                   </div>
                 )}
-
                 {currentStep === 3 && (
                   <div className="bg-white p-3 rounded border border-purple-100">
                     <div className="flex items-start gap-2">
                       <Lightbulb className="w-4 h-4 text-purple-600 mt-0.5 flex-shrink-0" />
                       <p className="text-sm text-gray-700">
-                        Confirm: based on url can we display number of visitors a day on one side and duration (14 days) displayed with (optimal for 80% confidence)
+                        Based on your URL traffic, we recommend a 14-day test duration for 80% confidence level with approximately 1,000 daily visitors.
                       </p>
                     </div>
                   </div>
@@ -655,52 +684,140 @@ const TestCreationFlow = () => {
           </div>
         )}
 
-        {currentStep === 3 && (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
-            <h3 className="font-semibold text-gray-900 mb-4">Test Summary</h3>
-            
-            <div className="grid grid-cols-2 gap-x-8 gap-y-3 text-sm">
-              <div className="flex justify-between">
-                <span className="text-gray-600">Test Type:</span>
-                <span className="font-medium text-gray-900">Full Page</span>
+        {/* Success Modal */}
+        {showSuccessModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg shadow-xl p-6 max-w-md w-full mx-4 border-4 border-blue-500 relative">
+              
+              <button 
+                onClick={() => setShowSuccessModal(false)}
+                className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+                aria-label="Close modal"
+              >
+                <X className="w-6 h-6" />
+              </button>
+
+              <h2 className="text-xl font-bold text-gray-900 mb-3">
+                Test Launched Successfully!
+              </h2>
+              <p className="text-gray-600 text-sm mb-4">
+                Your A/B test is now live and collecting data.
+              </p>
+              <div className="bg-gray-50 rounded p-3 mb-4 space-y-1">
+                <div className="flex items-start gap-2">
+                  <span className="text-gray-500 text-xs">•</span>
+                  <p className="text-sm text-gray-700">Test: {testName || 'Homepage Hero - CTA Button Color'}</p>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="text-gray-500 text-xs">•</span>
+                  <p className="text-sm text-gray-700">Type: {testType ? testTypes.find(t => t.value === testType)?.label : 'Full Page Test'}</p>
+
+                </div>
               </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Target Audience:</span>
-                <span className="font-medium text-gray-900">{targetAudience}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Success Metric:</span>
-                <span className="font-medium text-gray-900">{successMetric}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Traffic Split:</span>
-                <span className="font-medium text-gray-900">
-                  {trafficSplit === 'Custom Ratio' && customControl && customVariant
-                    ? `${customControl}/${customVariant}`
-                    : trafficSplit.includes('50/50') 
-                    ? '50/50'
-                    : trafficSplit.includes('80/20')
-                    ? '80/20'
-                    : '50/50'}
-                </span>
+              <p className="text-xs text-gray-600 mb-4">
+                Monitor progress in your dashboard while AI analyzes patterns in real time.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => {
+                    setShowSuccessModal(false);
+                    navigate("/Pagename"); // 👈 redirects to dashboard page
+                  }}
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded text-sm font-medium text-gray-700 hover:bg-gray-50"
+                >
+                  View Dashboard
+                </button>
+                <button
+                  onClick={() => {
+                    setShowSuccessModal(false);
+                    setCurrentStep(1);
+                    setTestName('');
+                    setTestType('');
+                    setPageUrl('');
+                    navigate('/Testcreatepage');
+                  }}
+                  className="flex-1 px-4 py-2 bg-blue-600 rounded text-sm font-medium text-white hover:bg-blue-700"
+                >
+                  Create New Test
+                </button>
               </div>
             </div>
           </div>
         )}
 
+        {/* 2. Add the Draft Saved Modal JSX */}
+        {showDraftModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-xl border-4 border-blue-600 max-w-md w-full relative shadow-xl">
+              <button
+                onClick={() => setShowDraftModal(false)}
+                className="absolute -top-4 -right-4 w-12 h-12 bg-gray-500 rounded-full flex items-center justify-center hover:bg-gray-600 transition-colors"
+                aria-label="Close draft modal"
+              >
+                <X className="w-6 h-6 text-white" />
+              </button>
+              
+              <div className="p-6">
+                <h2 className="text-xl font-bold text-gray-900 mb-3">Draft Saved</h2>
+                
+                <p className="text-gray-700 mb-4">
+                  Your test has been successfully saved as a draft.
+                </p>
+                
+                <ul className="space-y-1 mb-4 text-sm text-gray-700">
+                  {/* You can make this dynamic later if you want */}
+                  <li>• Test: {testName || 'Pricing Page - Annual vs Monthly'}</li>
+                  <li>• Saved: Just Now</li>
+                </ul>
+                
+                <p className="text-sm text-gray-600 mb-6">
+                  All your progress has been saved. You can return to this draft anytime from your <span className="font-semibold">Drafts</span> tab to continue where you left off.
+                </p>
+                
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setShowDraftModal(false)}
+                    className="flex-1 px-4 py-2 bg-white border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium"
+                  >
+                    Continue Editing
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowDraftModal(false);
+                      // You might want to navigate to a drafts page here
+                      // navigate("/drafts"); 
+                    }}
+                    className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium"
+                  >
+                    View All Drafts
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+
+        {/* Navigation Buttons */}
         <div className="flex justify-between items-center">
           <button
-            onClick={handlePrevStep}
-            className="px-4 py-2 border border-gray-300 rounded text-sm font-medium hover:bg-gray-50 flex items-center gap-2"
+            onClick={handlePrevStepClick}
+            className={`px-4 py-2 border border-gray-300 rounded text-sm font-medium flex items-center gap-2 ${
+              currentStep === 1 ? 'hover:bg-gray-50' : 'hover:bg-gray-50'
+            }`}
           >
             ← {currentStep === 1 ? 'Back to Dashboard' : 'Previous'}
           </button>
           <div className="flex gap-3">
-            <button className="px-4 py-2 border border-gray-300 rounded text-sm font-medium hover:bg-gray-50">
+            {/* 3. Connect the "Save as Draft" button */}
+            <button 
+              onClick={() => setShowDraftModal(true)}
+              className="px-4 py-2 border border-gray-300 rounded text-sm font-medium hover:bg-gray-50"
+            >
               Save as Draft
             </button>
             <button
-              onClick={handleNextStep}
+              onClick={handleLaunchTest}
               className={`px-4 py-2 rounded text-sm font-medium text-white flex items-center gap-2 ${
                 currentStep === 3 ? 'bg-teal-600 hover:bg-teal-700' : 'bg-blue-600 hover:bg-blue-700'
               }`}
@@ -710,48 +827,6 @@ const TestCreationFlow = () => {
           </div>
         </div>
 
-        <div className="mt-12 pt-8 border-t border-gray-200">
-          <div className="grid grid-cols-4 gap-8 text-sm">
-            <div>
-              <h4 className="font-semibold mb-3">Stay Updated</h4>
-              <p className="text-gray-600 mb-2">Get the latest features and testing insights</p>
-              <div className="flex gap-2">
-                <input
-                  type="email"
-                  placeholder="you@email.com"
-                  className="flex-1 px-3 py-1.5 border border-gray-300 rounded text-sm"
-                />
-                <button className="px-3 py-1.5 bg-blue-600 text-white rounded text-sm">→</button>
-              </div>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-3">Product</h4>
-              <ul className="space-y-2 text-gray-600">
-                <li>Features</li>
-                <li>Pricing</li>
-                <li>Documentation</li>
-                <li>API Reference</li>
-                <li>Integrations</li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-3">Product</h4>
-              <ul className="space-y-2 text-gray-600">
-                <li>About Us</li>
-                <li>Blog</li>
-                <li>Contact Us</li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-3">Resources</h4>
-              <ul className="space-y-2 text-gray-600">
-                <li>Help</li>
-                <li>Community</li>
-                <li>Tutorials</li>
-              </ul>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );

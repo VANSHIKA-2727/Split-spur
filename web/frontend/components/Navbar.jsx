@@ -21,7 +21,7 @@ export default function Navbar() {
         <div className="flex items-center gap-8">
           {/* Logo */}
           <div
-            onClick={() => navigate('/loginpage')}
+            onClick={() => navigate('/Loginpage')}
             className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
           >
             <div className="w-6 h-6 bg-black rounded"></div>
