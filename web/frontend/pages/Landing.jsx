@@ -1,9 +1,8 @@
 import React from 'react';
 import { Zap, CheckCircle, BarChart3, ArrowRight } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-
+import {  useNavigate } from 'react-router-dom';
 export default function SplitspurLanding() {
-  const navigate = useNavigate();
+const navigate = useNavigate();
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -15,9 +14,25 @@ export default function SplitspurLanding() {
             <span className="text-xl font-bold">Splitspur</span>
           </div>
           <nav className="hidden md:flex items-center gap-8">
-            <a href="#features" className="text-gray-700 hover:text-gray-900">Features</a>
-            <a href="#pricing" className="text-gray-700 hover:text-gray-900">Pricing</a>
-            <a href="#docs" className="text-gray-700 hover:text-gray-900">Documentation</a>
+           <button 
+  onClick={() => navigate('/Start')}
+  className="text-gray-700 hover:text-gray-900"
+>
+  Features
+</button>
+          <button 
+  onClick={() => navigate('/Pricing')}
+  className="text-gray-700 hover:text-gray-900"
+>
+  Pricing
+</button>
+<button 
+  onClick={() => navigate('/Features')}
+  className="text-gray-700 hover:text-gray-900"
+>
+  Documentation
+</button>
+           
           </nav>
           <div className="flex items-center gap-3">
             <button
