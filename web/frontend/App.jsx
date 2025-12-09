@@ -15,6 +15,8 @@ import Pricing from "./pages/Pricing.jsx";
 import Start from "./pages/Start.jsx";
 import Navbar1 from "./components/Navbar1.jsx";
 import MainPage from "./abtesting/MainPage.jsx";
+import Splitspurpage from "./testing/Splitspurpage.jsx";
+import React from "react";
 export default function App() {
   return (
     <Router>
@@ -35,6 +37,9 @@ export default function App() {
         <Route path="Start" element={<Start/>} />
         <Route path="Navbar1" element={<Navbar1/>} />
         <Route path="/MainPage" element={<MainPage />} />
+        <Route path="/Splitspurpage" element={<Splitspurpage />} />
+        <Route path="*" element={<div>404 Not Found</div>} />
+        
         
 
       </Routes>
