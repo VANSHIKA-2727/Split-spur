@@ -8,19 +8,76 @@ export default function SplitspurSignup() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [agreedToTerms, setAgreedToTerms] = useState(false);
+  
+  // State for subscribe (not used in this form, but we'll leave it)
   const [subscribeEmail, setSubscribeEmail] = useState('');
   
-  const navigate = useNavigate(); // 👈 used for navigation
+  // <-- Added state for success/error messages
+  const [message, setMessage] = useState(''); 
+  
+  const navigate = useNavigate();
 
-  const handleCreateAccount = (e) => {
+  // <-- Updated function to be async and handle API call
+  const handleCreateAccount = async (e) => {
     e.preventDefault();
-    console.log('Account creation attempted');
+    setMessage(''); // Clear previous messages
 
-    // Add any validation or backend logic here
-    // For now, just navigate to /pagename
-    navigate('/pagename');
+    // --- 1. Frontend Validation ---
+    if (password !== confirmPassword) {
+      setMessage('Error: Passwords do not match.');
+      return;
+    }
+    if (!agreedToTerms) {
+      setMessage('Error: You must agree to the Terms of Service.');
+      return;
+    }
+
+    // --- 2. Send data to Backend API ---
+    try {
+      // <-- THIS URL IS NOW RELATIVE TO USE THE VITE PROXY
+      const response = await fetch('/api/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        // Send fullName as 'name', as expected by the backend
+        body: JSON.stringify({
+          name: fullName, 
+          email: email,
+          password: password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // --- 3. Handle Success ---
+        setMessage('Success! Account created. Redirecting to login...');
+        // Clear the form
+        setFullName('');
+        setEmail('');
+        setPassword('');
+        setConfirmPassword('');
+        setAgreedToTerms(false);
+        
+        // Wait 2 seconds and navigate to the login page
+        setTimeout(() => {
+          navigate('/'); // Navigate to the Sign In page
+        }, 2000);
+
+      } else {
+        // --- 4. Handle Server Errors ---
+        // (e.g., "Email already in use")
+        setMessage(`Error: ${data.error}`);
+      }
+    } catch (error) {
+      // --- 5. Handle Network Errors ---
+      console.error('Failed to fetch:', error);
+      setMessage('Error: Could not connect to the server. Is it running?');
+    }
   };
 
+  // This function isn't used by the sign-up form, leaving as is
   const handleSubscribe = (e) => {
     e.preventDefault();
     console.log('Subscribed with:', subscribeEmail);
@@ -54,7 +111,8 @@ export default function SplitspurSignup() {
               <p className="text-sm text-gray-600">Get started with your free trial</p>
             </div>
 
-            <div className="space-y-4">
+            {/* Form is now a <form> tag with onSubmit */}
+            <form onSubmit={handleCreateAccount} className="space-y-4">
               {/* Full Name */}
               <div>
                 <label htmlFor="fullname" className="block text-sm font-medium text-gray-900 mb-2">
@@ -67,6 +125,7 @@ export default function SplitspurSignup() {
                   onChange={(e) => setFullName(e.target.value)}
                   placeholder="Name"
                   className="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  required // <-- Added HTML validation
                 />
               </div>
 
@@ -84,6 +143,7 @@ export default function SplitspurSignup() {
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="your@email.com"
                     className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    required // <-- Added HTML validation
                   />
                 </div>
               </div>
@@ -95,14 +155,15 @@ export default function SplitspurSignup() {
                 </label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                  <input
-                    type="password"
-                    id="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Enter Your Password"
-                    className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
+                 <input
+  type="password"
+  id="password"
+  value={password}
+  onChange={(e) => setPassword(e.target.value)} // <-- Fixed!
+  placeholder="Enter Your Password"
+  className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+  required
+/>
                 </div>
               </div>
 
@@ -120,6 +181,7 @@ export default function SplitspurSignup() {
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     placeholder="Re-enter Your Password"
                     className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    required // <-- Added HTML validation
                   />
                 </div>
               </div>
@@ -141,9 +203,16 @@ export default function SplitspurSignup() {
                 </label>
               </div>
 
+              {/* --- Display Message Area --- */}
+              {message && (
+                <p className={`text-sm ${message.startsWith('Error:') ? 'text-red-600' : 'text-green-600'}`}>
+                  {message}
+                </p>
+              )}
+
               {/* Create Account Button */}
               <button
-                onClick={handleCreateAccount}
+                type="submit" // <-- Changed from onClick to submit
                 className="w-full bg-blue-600 text-white py-3 rounded-md font-medium hover:bg-blue-700 transition mt-2"
               >
                 Create Account
@@ -153,13 +222,14 @@ export default function SplitspurSignup() {
               <p className="text-center text-sm text-gray-600 mt-4">
                 Already have an account?{' '}
                 <button
+                  type="button" // <-- Added type="button"
                   onClick={() => navigate('/')} // 👈 redirects to Login
                   className="text-blue-600 hover:text-blue-700 font-medium"
                 >
                   Sign In
                 </button>
               </p>
-            </div>
+            </form>
           </div>
         </div>
       </main>

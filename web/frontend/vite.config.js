@@ -17,9 +17,11 @@ if (
 process.env.VITE_SHOPIFY_API_KEY = process.env.SHOPIFY_API_KEY;
 
 const proxyOptions = {
-  target: `http://127.0.0.1:${process.env.BACKEND_PORT}`,
+  // Use port 3001 directly
+  target: "http://localhost:3001",
   changeOrigin: false,
-  secure: true,
+  // Set to false for http
+  secure: false,
   ws: false,
 };
 
@@ -55,7 +57,7 @@ export default defineConfig({
     port: process.env.FRONTEND_PORT,
     hmr: hmrConfig,
     proxy: {
-      "^/(\\?.*)?$": proxyOptions,
+      
       "^/api(/|(\\?.*)?$)": proxyOptions,
     },
   },

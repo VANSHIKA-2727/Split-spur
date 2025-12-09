@@ -14,6 +14,7 @@ import Features from "./pages/Features.jsx";
 import Pricing from "./pages/Pricing.jsx";
 import Start from "./pages/Start.jsx";
 import Navbar1 from "./components/Navbar1.jsx";
+import MainPage from "./abtesting/MainPage.jsx";
 export default function App() {
   return (
     <Router>
@@ -33,8 +34,9 @@ export default function App() {
         <Route path="Pricing" element={<Pricing/>}/>
         <Route path="Start" element={<Start/>} />
         <Route path="Navbar1" element={<Navbar1/>} />
-
+        <Route path="/MainPage" element={<MainPage />} />
         
+
       </Routes>
     </Router>
   );

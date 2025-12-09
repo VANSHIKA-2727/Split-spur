@@ -59,7 +59,7 @@ export default function Navbar() {
         <div className="flex items-center gap-2 md:gap-4">
           {/* Create New Test Button (Responsive) */}
           <button
-            onClick={() => navigate('/Testcreatepage')}
+            onClick={() => navigate('/MainPage')}
             className="bg-blue-600 text-white p-2 md:px-4 md:py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors flex items-center justify-center gap-1"
           >
             {/* Show icon on all sizes */}

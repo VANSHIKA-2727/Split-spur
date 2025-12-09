@@ -1,18 +1,53 @@
 import React, { useState } from 'react';
 import { Mail, Lock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-  // ✅ Import this
 
 export default function SplitspurLogin() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [subscribeEmail, setSubscribeEmail] = useState('');
-  const navigate = useNavigate(); // ✅ Initialize navigation
+  const [message, setMessage] = useState(''); // <-- Added state for messages
+  const navigate = useNavigate();
 
-  const handleSignIn = (e) => {
+  // <-- Updated function to be async and call the API
+  const handleSignIn = async (e) => {
     e.preventDefault();
-    console.log('Sign in attempted with:', email);
-    navigate('/pagename'); // ✅ Navigate to the next page
+    setMessage(''); // Clear previous messages
+
+    try {
+      // --- 1. Send data to Backend API ---
+      const response = await fetch('/api/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: email,
+          password: password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // --- 2. Handle Success ---
+        setMessage(`Success! Welcome back, ${data.name}.`);
+        
+        // Wait 1.5 seconds and navigate to the main page
+        setTimeout(() => {
+          navigate('/pagename'); // Navigate to your dashboard
+        }, 1500);
+
+      } else {
+        // --- 3. Handle Server Errors ---
+        // (e.g., "Invalid email or password")
+        setMessage(`Error: ${data.error}`);
+      }
+    } catch (error) {
+      // --- 4. Handle Network Errors ---
+      console.error('Failed to fetch:', error);
+      setMessage('Error: Could not connect to the server. Is it running?');
+    }
   };
 
   const handleSubscribe = (e) => {
@@ -63,6 +98,7 @@ export default function SplitspurLogin() {
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="your@email.com"
                     className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    required // <-- Added HTML validation
                   />
                 </div>
               </div>
@@ -86,9 +122,17 @@ export default function SplitspurLogin() {
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Enter Your Password"
                     className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    required // <-- Added HTML validation
                   />
                 </div>
               </div>
+
+              {/* --- Display Message Area --- */}
+              {message && (
+                <p className={`text-sm mb-4 ${message.startsWith('Error:') ? 'text-red-600' : 'text-green-600'}`}>
+                  {message}
+                </p>
+              )}
 
               {/* Sign In Button */}
               <button
@@ -103,7 +147,7 @@ export default function SplitspurLogin() {
                 Don't have an account?{' '}
                 <button
                   type="button"
-                  onClick={() => navigate('/signup')} // ✅ Navigate to signup
+                  onClick={() => navigate('/signup')} // Navigates to signup
                   className="text-blue-600 hover:text-blue-700 font-medium"
                 >
                   Sign Up for free
