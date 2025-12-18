@@ -21,6 +21,16 @@ export default function SplitsurTestsDashboard() {
   const [appliedUplift, setAppliedUplift] = useState([]);
   const [appliedConfidence, setAppliedConfidence] = useState([]);
 
+  const handleAction = (test) => {
+  if (test.status === 'Draft') {
+    // Redirect to the edit page
+    
+  } else {
+    // Redirect to the report page
+    navigate('/Viewreport');
+  }
+};
+
   // --- 2. DATA ---
   const tests = [
     {
@@ -417,9 +427,12 @@ export default function SplitsurTestsDashboard() {
                       Created {test.created} • Updated {new Date(test.updated).toLocaleDateString()}
                     </p>
                   </div>
-                  <button className="px-6 py-2 bg-blue-600 text-white text-sm font-bold rounded-lg hover:bg-blue-700 transition-all shadow-sm active:scale-95">
-                    {test.status === 'Draft' ? 'Edit' : 'View Report'}
-                  </button>
+                  <button 
+  onClick={() => handleAction(test)}
+  className="px-6 py-2 bg-blue-600 text-white text-sm font-bold rounded-lg hover:bg-blue-700 transition-all shadow-sm active:scale-95"
+>
+  {test.status === 'Draft' ? 'Edit' : 'View Report'}
+</button>
                 </div>
 
                 <div className="grid grid-cols-5 gap-6 p-4 bg-gray-50 rounded-xl border border-gray-100">

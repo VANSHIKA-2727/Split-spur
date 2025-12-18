@@ -15,8 +15,12 @@ export default function SplitspurLanding() {
   const [email, setEmail] = useState('');
   const [showPauseModal, setShowPauseModal] = useState(false);
   const [selectedTest, setSelectedTest] = useState(null);
+  
+  // New state for toggling the list view
+  const [isViewAll, setIsViewAll] = useState(false);
 
-   const navigate = useNavigate();
+  const navigate = useNavigate();
+
   const activeTests = [
     {
       title: 'Product Page - Add to Cart Button Colour',
@@ -105,10 +109,13 @@ export default function SplitspurLanding() {
     setSelectedTest(null);
   };
 
+  // Determine which tests to show based on state
+  const displayedTests = isViewAll ? activeTests : activeTests.slice(0, 2);
+
   return (
     <div className="min-h-screen bg-gray-50">
-     <Navbar/>
-      {/* Main Content */}
+      <Navbar />
+      
       <main className="max-w-7xl mx-auto px-6 py-8">
         {/* Welcome Section */}
         <div className="mb-8">
@@ -158,15 +165,20 @@ export default function SplitspurLanding() {
           </div>
         </div>
 
-        {/* Active Tests Section */}
+        {/* Active Tests Section with View All/Less toggle */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-8">
           <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
             <h2 className="text-lg font-semibold">Active Tests</h2>
-            <button className="text-sm text-gray-600 hover:text-gray-900">View All</button>
+            <button 
+              onClick={() => setIsViewAll(!isViewAll)}
+              className="text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors"
+            >
+              {isViewAll ? 'View Less' : 'View All'}
+            </button>
           </div>
 
           <div className="p-6 space-y-4">
-            {activeTests.map((test, index) => (
+            {displayedTests.map((test, index) => (
               <div key={index} className="border border-gray-200 rounded-lg p-4">
                 <div className="flex items-start justify-between mb-3">
                   <div>
@@ -180,18 +192,16 @@ export default function SplitspurLanding() {
                   <div className="flex gap-2">
                     <button 
                       onClick={() => handlePauseClick(test)}
-                      className="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50"
+                      className="px-6 py-2 border border-gray-300 rounded text-sm hover:bg-gray-50"
                     >
                       Pause
                     </button>
-                     <button
-      onClick={() => navigate('/Viewreport')}
-      className="px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700"
-    >
-      View Report
-    </button>
-                  
-
+                    <button
+                      onClick={() => navigate('/Viewreport')}
+                      className="px-6 py-2 bg-blue-600 text-white text-sm font-bold rounded-lg hover:bg-blue-700 transition-all shadow-sm active:scale-95"
+                    >
+                      View Report
+                    </button>
                   </div>
                 </div>
 
@@ -317,14 +327,10 @@ export default function SplitspurLanding() {
       {showPauseModal && selectedTest && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl max-w-2xl w-full p-8 relative shadow-xl">
-           
-
             {selectedTest.visitors >= 1000 ? (
-              // Modal for tests with enough data (>= 1000 visitors)
               <>
                 <h2 className="text-2xl font-bold text-gray-900 mb-4">Pause Test</h2>
                 <p className="text-gray-900 mb-6">Pausing {selectedTest.title}</p>
-                
                 <ul className="space-y-2 mb-6">
                   <li className="text-gray-900">
                     • Visitors: <span className="font-semibold text-red-600">{selectedTest.visitors}</span>
@@ -336,11 +342,9 @@ export default function SplitspurLanding() {
                     • Confidence: {selectedTest.confidence}%
                   </li>
                 </ul>
-
                 <p className="text-gray-900 mb-8">
                   Pausing now may prevent reaching statistically significant results.
                 </p>
-
                 <div className="flex justify-end gap-3">
                   <button
                     onClick={() => setShowPauseModal(false)}
@@ -357,23 +361,18 @@ export default function SplitspurLanding() {
                 </div>
               </>
             ) : (
-              // Modal for tests that need more data (< 1000 visitors)
               <>
                 <h2 className="text-2xl font-bold text-gray-900 mb-6">Test needs more data</h2>
-                
                 <p className="text-gray-900 mb-4">
                   Please wait until your test reaches <span className="font-semibold">1,000 visitors</span> before pausing to ensure statistically reliable results.
                 </p>
-
                 <p className="text-gray-900 mb-6">
                   Current progress: <span className="font-semibold text-red-600">{selectedTest.visitors}/1000</span> visitors
                 </p>
-
                 <ul className="space-y-2 mb-8">
                   <li className="text-gray-900">• Continuing the test ensures accurate winner detection</li>
                   <li className="text-gray-900">• Pausing now may lead to inconclusive results</li>
                 </ul>
-
                 <div className="flex justify-end">
                   <button
                     onClick={() => setShowPauseModal(false)}
@@ -389,4 +388,4 @@ export default function SplitspurLanding() {
       )}
     </div>
   );
-}  
+}
