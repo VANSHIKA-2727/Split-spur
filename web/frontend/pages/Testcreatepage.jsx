@@ -1,835 +1,440 @@
 import React, { useState } from 'react';
-// 'X' icon is already imported from our previous step
-import { ChevronDown, Lightbulb, Target, Zap, Menu, X } from 'lucide-react'; 
+import { 
+  ChevronDown, 
+  Target, 
+  X, 
+  Layers, 
+  ShoppingCart, 
+  Heart, 
+  Image as ImageIcon, 
+  Share2, 
+  MousePointerClick, 
+  Link as LinkIcon,
+  Globe,
+  AlertCircle
+} from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const TestCreationFlow = () => {
+  const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
-  const [testType, setTestType] = useState('');
-  const [showDropdown, setShowDropdown] = useState(false);
-  const [showSuccessMetricDropdown, setShowSuccessMetricDropdown] = useState(false);
-  const [showTargetAudienceDropdown, setShowTargetAudienceDropdown] = useState(false);
-  const [showTrafficSplitDropdown, setShowTrafficSplitDropdown] = useState(false);
+
+  // Step 1 State
   const [testName, setTestName] = useState('');
-  const [pageUrl, setPageUrl] = useState('');
-  const [successMetric, setSuccessMetric] = useState('Conversion Rate');
+  const [variantAUrl, setVariantAUrl] = useState('');
+  const [variantBUrl, setVariantBUrl] = useState('');
+  const [testType, setTestType] = useState('full-page');
+
+  // Step 3 State
+  const [selectedGoals, setSelectedGoals] = useState([]);
   const [targetAudience, setTargetAudience] = useState('Desktop Users');
   const [trafficSplit, setTrafficSplit] = useState('50/50 (Control vs Variant)');
-  const [customControl, setCustomControl] = useState('');
-  const [customVariant, setCustomVariant] = useState('');
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [customPercentage, setCustomPercentage] = useState(50); 
 
-  // 1. Add state for the new draft modal
+  // UI State
+  const [showTargetAudienceDropdown, setShowTargetAudienceDropdown] = useState(false);
+  const [showTrafficSplitDropdown, setShowTrafficSplitDropdown] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showDraftModal, setShowDraftModal] = useState(false);
 
-  const testTypes = [
-    { value: 'full-page', label: 'Full Page Testing' },
-    { value: 'fragmented', label: 'Fragmented Testing' },
-    { value: 'targeted', label: 'Targeted Testing' }
+  // Helper to ensure URL is valid for iframe
+  const formatUrl = (url) => {
+    if (!url) return '';
+    if (!/^https?:\/\//i.test(url)) return `https://${url}`;
+    return url;
+  };
+
+  const goals = [
+    { id: 'form', label: 'Form Submissions', icon: <Layers size={18} /> },
+    { id: 'product', label: 'Product Interactions', icon: <ShoppingCart size={18} /> },
+    { id: 'wishlist', label: 'Wishlist Actions', icon: <Heart size={18} /> },
+    { id: 'carousel', label: 'Carousel Interactions', icon: <Layers size={18} /> },
+    { id: 'accordion', label: 'Accordion Expands', icon: <Layers size={18} /> },
+    { id: 'image', label: 'Image Clicks', icon: <ImageIcon size={18} /> },
+    { id: 'social', label: 'Social Media Clicks', icon: <Share2 size={18} /> },
+    { id: 'internal', label: 'Internal Navigation', icon: <MousePointerClick size={18} /> },
+    { id: 'external', label: 'External Link Clicks', icon: <LinkIcon size={18} /> }
   ];
 
-  const successMetrics = [
-    'Conversion Rate',
-    'Engagement Time'
-  ];
-
-  const targetAudiences = [
-    'Desktop Users',
-    'Mobile Users'
-  ];
-
-  const trafficSplits = [
-    '50/50 (Control vs Variant)',
-    '80/20 (Control vs Variant)',
-    'Custom Ratio'
-  ];
+  const targetAudiences = ['Desktop Users', 'Mobile Users', 'All Visitors'];
+  const trafficSplits = ['50/50 (Control vs Variant)', '80/20 (Control vs Variant)', 'Custom Ratio'];
 
   const steps = [
     { num: 1, label: 'Test Setup' },
-    { num: 2, label: 'Variant Creation' },
-    { num: 3, label: 'Test Setup' }
+    { num: 2, label: 'Variant Preview' },
+    { num: 3, label: 'Goals & Traffic' }
   ];
 
-  const handleTestTypeSelect = (type) => {
-    setTestType(type);
-    setShowDropdown(false);
+  const toggleGoal = (id) => {
+    setSelectedGoals(prev =>
+      prev.includes(id) ? prev.filter(g => g !== id) : [...prev, id]
+    );
   };
 
   const handleNextStep = () => {
-    if (currentStep < 3) {
-      setCurrentStep(currentStep + 1);
-    }
+    if (currentStep < 3) setCurrentStep(currentStep + 1);
   };
 
-  const navigate = useNavigate();
-
   const handlePrevStepClick = () => {
-    if (currentStep === 1) {
-      navigate("/Pagename"); // 👈 Redirect to dashboard when on step 1
-    } else {
-      setCurrentStep(currentStep - 1); // 👈 Otherwise go to previous step
-    }
+    if (currentStep === 1) navigate('/Pagename');
+    else setCurrentStep(currentStep - 1);
   };
 
   const handleLaunchTest = () => {
-    if (currentStep === 3) {
-      setShowSuccessModal(true);
-    } else {
-      handleNextStep();
-    }
+    if (currentStep === 3) setShowSuccessModal(true);
+    else handleNextStep();
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 pb-20 font-sans">
       <div className="max-w-4xl mx-auto px-6 py-8">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-1">Create New Test</h1>
-          <p className="text-sm text-gray-500 mb-8">With AI Recommendations</p>
+
+        {/* Header */}
+        <div className="mb-8">
+            <h1 className="text-2xl font-bold text-gray-900">Create New Test</h1>
+            <p className="text-sm text-gray-500">Step {currentStep} of 3</p>
         </div>
 
+        {/* Stepper */}
         <div className="flex items-center justify-between mb-12">
           {steps.map((step, idx) => (
             <React.Fragment key={step.num}>
               <div className="flex items-center gap-3">
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium ${
-                  currentStep === step.num ? 'bg-blue-600 text-white' :
-                  currentStep > step.num ? 'bg-teal-600 text-white' :
-                  'bg-gray-200 text-gray-600'
-                }`}>
+                <div
+                  className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium transition-all duration-300
+                  ${currentStep === step.num ? 'bg-blue-600 text-white shadow-lg ring-4 ring-blue-100' :
+                    currentStep > step.num ? 'bg-teal-600 text-white' :
+                    'bg-gray-200 text-gray-600'}`}
+                >
                   {step.num}
                 </div>
-                <span className="text-sm font-medium text-gray-700">{step.label}</span>
+                <span className={`text-sm font-medium ${currentStep === step.num ? 'text-blue-600' : 'text-gray-500'}`}>
+                    {step.label}
+                </span>
               </div>
               {idx < steps.length - 1 && (
-                <div className={`flex-1 h-0.5 mx-4 ${
-                  currentStep > step.num ? 'bg-teal-600' : 'bg-gray-200'
-                }`}></div>
+                <div className={`flex-1 h-0.5 mx-4 ${currentStep > step.num ? 'bg-teal-600' : 'bg-gray-200'}`} />
               )}
             </React.Fragment>
           ))}
         </div>
 
+        {/* STEP 1 — Test Setup */}
         {currentStep === 1 && (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
-            <h2 className="text-lg font-semibold mb-1">Test Setup</h2>
-            <p className="text-sm text-gray-500 mb-6">Configure your test parameters</p>
-
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 mb-6">
+            <h2 className="text-lg font-semibold mb-1 text-gray-900">Test Setup</h2>
+            <p className="text-sm text-gray-500 mb-8">Configure your test parameters</p>
             <div className="space-y-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Test Name
-                </label>
+                <label className="block text-sm font-medium mb-2 text-gray-700">Test Name</label>
                 <input
                   type="text"
-                  placeholder="e.g., Homepage Hero - Value Proposition Copy"
                   value={testName}
                   onChange={(e) => setTestName(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="e.g. Homepage Hero CTA Test"
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all"
                 />
               </div>
-
+              
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Test Type
-                </label>
+                <label className="block text-sm font-medium mb-2 text-gray-700">Variant A URL (Control)</label>
                 <div className="relative">
-                  <button
-                    onClick={() => setShowDropdown(!showDropdown)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md flex items-center justify-between hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <span className={testType ? 'text-gray-900' : 'text-gray-400'}>
-                      {testType ? testTypes.find(t => t.value === testType)?.label : 'Full Page Testing'}
-                    </span>
-                    <ChevronDown className="w-4 h-4 text-gray-400" />
-                  </button>
-                  {showDropdown && (
-                    <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg">
-                      {testTypes.map((type) => (
-                        <button
-                          key={type.value}
-                          onClick={() => handleTestTypeSelect(type.value)}
-                          className="w-full px-3 py-2 text-left hover:bg-gray-50 first:rounded-t-md last:rounded-b-md"
-                        >
-                          {type.label}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-                <p className="text-xs text-gray-500 mt-1">
-                  Full Page Testing requires 2 variants
-                </p>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Page URL
-                </label>
-                <input
-                  type="text"
-                  placeholder="https://example.com"
-                  value={pageUrl}
-                  onChange={(e) => setPageUrl(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-            </div>
-          </div>
-        )}
-
-        {currentStep === 2 && testType === 'full-page' && (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
-            <h2 className="text-lg font-semibold mb-1">Full Page Variant Creation</h2>
-            <p className="text-sm text-gray-500 mb-6">Create complete page variations for testing</p>
-
-            <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
-              <h3 className="font-medium text-gray-900 mb-4">Control Page Preview</h3>
-              <div className="border-2 border-teal-400 rounded-lg bg-teal-50 h-80 flex items-center justify-center relative">
-                <div className="absolute right-3 top-3 w-2 h-20 bg-gray-400 rounded"></div>
-                <p className="text-gray-500">Preview</p>
-              </div>
-              <div className="flex justify-end mt-4">
-                <button className="px-4 py-2 bg-blue-600 text-white rounded text-sm font-medium hover:bg-blue-700">
-                  Close Preview
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {currentStep === 2 && testType === 'fragmented' && (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
-            <h2 className="text-lg font-semibold mb-1">Fragment Variant Creation</h2>
-            <p className="text-sm text-gray-500 mb-6">Test specific sections of your page</p>
-
-            <div className="space-y-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Control (Original Page)
-                </label>
-                <div className="mb-2">
-                  <label className="block text-xs text-gray-600 mb-1">Page URL</label>
                   <input
                     type="text"
-                    placeholder="https://yousite.com"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    value={variantAUrl}
+                    onChange={(e) => setVariantAUrl(e.target.value)}
+                    placeholder="example.com/a"
+                    className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                   />
-                </div>
-                <button className="text-xs text-blue-600 font-medium mb-4">Show Preview</button>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-4">
-                  Select Fragment to Test
-                </label>
-                <div className="grid grid-cols-2 gap-3">
-                  <button className="p-4 border-2 border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all">
-                    <div className="w-8 h-8 bg-gray-100 rounded mx-auto mb-2 flex items-center justify-center">
-                      <Target className="w-4 h-4 text-gray-600" />
-                    </div>
-                    <div className="text-sm font-medium">Hero Section</div>
-                  </button>
-                  <button className="p-4 border-2 border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all">
-                    <div className="w-8 h-8 bg-gray-100 rounded mx-auto mb-2 flex items-center justify-center">
-                      <Zap className="w-4 h-4 text-gray-600" />
-                    </div>
-                    <div className="text-sm font-medium">Product Grid</div>
-                  </button>
-                  <button className="p-4 border-2 border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all">
-                    <div className="w-8 h-8 bg-gray-100 rounded mx-auto mb-2 flex items-center justify-center">
-                      <Target className="w-4 h-4 text-gray-600" />
-                    </div>
-                    <div className="text-sm font-medium">Navigation Bar</div>
-                  </button>
-                  <button className="p-4 border-2 border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all">
-                    <div className="w-8 h-8 bg-gray-100 rounded mx-auto mb-2 flex items-center justify-center">
-                      <Zap className="w-4 h-4 text-gray-600" />
-                    </div>
-                    <div className="text-sm font-medium">CTA Section</div>
-                  </button>
+                  <Globe className="absolute left-3 top-3 text-gray-400" size={18} />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Variant Fragment
-                </label>
-                <div className="border border-gray-300 rounded-md p-4 bg-gray-50">
-                  <p className="text-sm text-gray-500 text-center"> Upload Code </p>
-                  <div className="text-xs text-gray-400 text-center mt-1">OR</div>
-                  <textarea
-                    placeholder="Paste your variant HTML code here..."
-                    rows={4}
-                    className="w-full px-3 py-2 mt-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                <label className="block text-sm font-medium mb-2 text-gray-700">Variant B URL (Variation)</label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={variantBUrl}
+                    onChange={(e) => setVariantBUrl(e.target.value)}
+                    placeholder="example.com/b"
+                    className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                   />
+                  <Globe className="absolute left-3 top-3 text-gray-400" size={18} />
                 </div>
               </div>
             </div>
           </div>
         )}
 
-        {currentStep === 2 && testType === 'targeted' && (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
-            <h2 className="text-lg font-semibold mb-1">Targeted Element Variants</h2>
-            <p className="text-sm text-gray-500 mb-6">Test specific elements on your page</p>
-
-            <div className="space-y-6">
+        {/* STEP 2 — Variant Preview (X-FRAME / IFRAME) */}
+        {currentStep === 2 && (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 mb-6">
+            <div className="flex justify-between items-start mb-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Control (Original Page)
-                </label>
-                <div className="grid grid-cols-2 gap-3 mb-3">
-                  <div>
-                    <label className="block text-xs text-gray-600 mb-1">Headline</label>
-                    <input
-                      type="text"
-                      placeholder="Get Started Today"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                <h2 className="text-lg font-semibold text-gray-900">Variant Preview</h2>
+                <p className="text-sm text-gray-500">Verify your landing pages load correctly.</p>
+              </div>
+              <div className="flex items-center gap-2 text-amber-600 bg-amber-50 px-3 py-1.5 rounded-lg border border-amber-100">
+                <AlertCircle size={14} />
+                <span className="text-[11px] font-medium">Some sites block iframe previews</span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-6">
+              {/* Variant A Iframe */}
+              <div className="space-y-3">
+                <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest">Variant A (Control)</h3>
+                <div className="h-96 border rounded-xl overflow-hidden bg-gray-100 relative group">
+                  {variantAUrl ? (
+                    <iframe 
+                      src={formatUrl(variantAUrl)} 
+                      title="Variant A Preview" 
+                      className="w-full h-full border-none bg-white"
+                      sandbox="allow-scripts allow-same-origin"
                     />
-                  </div>
-                  <div>
-                    <label className="block text-xs text-gray-600 mb-1">CTA Text</label>
-                    <input
-                      type="text"
-                      placeholder="Sign Up Now"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                  <span className="text-xs text-gray-600">#510656</span>
+                  ) : (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-400 p-4">
+                      <ImageIcon size={48} className="mb-2 opacity-20" />
+                      <p className="text-xs font-medium">No URL provided in Step 1</p>
+                    </div>
+                  )}
                 </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Variant
-                </label>
-                <div className="grid grid-cols-2 gap-3 mb-3">
-                  <div>
-                    <label className="block text-xs text-gray-600 mb-1">Headline</label>
-                    <input
-                      type="text"
-                      placeholder="Start Your Journey Today"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              {/* Variant B Iframe */}
+              <div className="space-y-3">
+                <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest">Variant B (Variation)</h3>
+                <div className="h-96 border rounded-xl overflow-hidden bg-gray-100 relative group">
+                  {variantBUrl ? (
+                    <iframe 
+                      src={formatUrl(variantBUrl)} 
+                      title="Variant B Preview" 
+                      className="w-full h-full border-none bg-white"
+                      sandbox="allow-scripts allow-same-origin"
                     />
-                  </div>
-                  <div>
-                    <label className="block text-xs text-gray-600 mb-1">CTA Text</label>
-                    <input
-                      type="text"
-                      placeholder="Get Started Free"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 bg-purple-700 rounded-full"></div>
-                  <span className="text-xs text-gray-600">#3B82F3</span>
+                  ) : (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-400 p-4">
+                      <ImageIcon size={48} className="mb-2 opacity-20" />
+                      <p className="text-xs font-medium">No URL provided in Step 1</p>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
           </div>
         )}
 
+        {/* STEP 3 — Goals & Traffic */}
         {currentStep === 3 && (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
-            <h2 className="text-lg font-semibold mb-1">Goal & Audience</h2>
-            <p className="text-sm text-gray-500 mb-6">Define success metrics and target audience</p>
-
-            <div className="space-y-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Success Metric
-                </label>
-                <div className="relative">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 mb-6">
+            <h2 className="text-lg font-semibold mb-1 text-gray-900">Goals & Traffic</h2>
+            
+            {/* Goals - Grid */}
+            <div className="mb-10 mt-6">
+              <label className="block text-sm font-semibold mb-4 text-gray-700">Select Conversion Goals</label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                {goals.map((goal) => (
                   <button
-                    onClick={() => setShowSuccessMetricDropdown(!showSuccessMetricDropdown)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md flex items-center justify-between hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-left"
+                    key={goal.id}
+                    onClick={() => toggleGoal(goal.id)}
+                    className={`p-4 border rounded-xl text-sm flex items-center gap-3 transition-all
+                      ${selectedGoals.includes(goal.id)
+                        ? 'border-blue-600 bg-blue-50 text-blue-700 ring-1 ring-blue-600'
+                        : 'border-gray-200 hover:border-blue-300 hover:bg-gray-50'}`}
                   >
-                    <span className="text-gray-900">{successMetric}</span>
-                    <ChevronDown className="w-4 h-4 text-gray-400" />
+                    {goal.icon}
+                    <span className="font-medium">{goal.label}</span>
                   </button>
-                  {showSuccessMetricDropdown && (
-                    <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg">
-                      {successMetrics.map((metric) => (
-                        <button
-                          key={metric}
-                          onClick={() => {
-                            setSuccessMetric(metric);
-                            setShowSuccessMetricDropdown(false);
-                          }}
-                          className={`w-full px-3 py-2 text-left hover:bg-gray-50 first:rounded-t-md last:rounded-b-md ${
-                            successMetric === metric ? 'bg-teal-50' : ''
-                          }`}
-                        >
-                          {metric}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Target Audience
-                </label>
-                <div className="relative">
-                  <button
-                    onClick={() => setShowTargetAudienceDropdown(!showTargetAudienceDropdown)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md flex items-center justify-between hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-left"
-                  >
-                    <span className="text-gray-900">{targetAudience}</span>
-                    <ChevronDown className="w-4 h-4 text-gray-400" />
-                  </button>
-                  {showTargetAudienceDropdown && (
-                    <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg">
-                      {targetAudiences.map((audience) => (
-                        <button
-                          key={audience}
-                          onClick={() => {
-                            setTargetAudience(audience);
-                            setShowTargetAudienceDropdown(false);
-                          }}
-                          className={`w-full px-3 py-2 text-left hover:bg-gray-50 first:rounded-t-md last:rounded-b-md ${
-                            targetAudience === audience ? 'bg-teal-50' : ''
-                          }`}
-                        >
-                          {audience}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Traffic Split
-                </label>
-                <div className="relative">
-                  <button
-                    onClick={() => setShowTrafficSplitDropdown(!showTrafficSplitDropdown)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md flex items-center justify-between hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-left"
-                  >
-                    <span className="text-gray-900">{trafficSplit}</span>
-                    <ChevronDown className="w-4 h-4 text-gray-400" />
-                  </button>
-                  {showTrafficSplitDropdown && (
-                    <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg">
-                      {trafficSplits.map((split) => (
-                        <button
-                          key={split}
-                          onClick={() => {
-                            setTrafficSplit(split);
-                            setShowTrafficSplitDropdown(false);
-                          }}
-                          className={`w-full px-3 py-2 text-left hover:bg-gray-50 first:rounded-t-md last:rounded-b-md ${
-                            trafficSplit === split ? 'bg-teal-50' : ''
-                          }`}
-                        >
-                          {split}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {trafficSplit === 'Custom Ratio' && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-3">
-                    Control
-                  </label>
-                  <div className="flex items-center gap-3">
-                    <input
-                      type="text"
-                      placeholder="Control"
-                      value={customControl}
-                      onChange={(e) => setCustomControl(e.target.value)}
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                    <span className="text-gray-500">/</span>
-                    <input
-                      type="text"
-                      placeholder="Variant"
-                      value={customVariant}
-                      onChange={(e) => setCustomVariant(e.target.value)}
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {currentStep === 3 && (
-          <>
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-5 mb-6">
-              <div className="flex items-start gap-3 mb-4">
-                <Zap className="w-5 h-5 text-blue-600 mt-0.5" />
-                <div className="flex-1">
-                  <h3 className="font-medium text-gray-900 mb-1">Traffic Split</h3>
-                  <p className="text-sm text-gray-600">
-                    Choose how traffic is distributed between variants
-                  </p>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-3 gap-4">
-                <div className="bg-white p-4 rounded-lg border border-blue-200">
-                  <div className="flex items-center gap-2 mb-3">
-                    <div className="w-8 h-8 bg-blue-600 rounded flex items-center justify-center">
-                      <Zap className="w-4 h-4 text-white" />
-                    </div>
-                    <div>
-                      <div className="font-medium text-sm">Equal Split</div>
-                      <div className="text-xs text-gray-500">(50/50)</div>
-                    </div>
-                  </div>
-                  <ul className="text-xs text-gray-700 space-y-1">
-                    <li>• Best for statistical accuracy</li>
-                    <li>• Recommended for most tests</li>
-                  </ul>
-                </div>
-
-                <div className="bg-white p-4 rounded-lg border border-blue-200">
-                  <div className="flex items-center gap-2 mb-3">
-                    <div className="w-8 h-8 bg-blue-600 rounded flex items-center justify-center">
-                      <Target className="w-4 h-4 text-white" />
-                    </div>
-                    <div>
-                      <div className="font-medium text-sm">Weighted Split</div>
-                      <div className="text-xs text-gray-500">(80/20)</div>
-                    </div>
-                  </div>
-                  <ul className="text-xs text-gray-700 space-y-1">
-                    <li>• Control gets majority traffic</li>
-                    <li>• Safer for testing major changes</li>
-                  </ul>
-                </div>
-
-                <div className="bg-white p-4 rounded-lg border border-blue-200">
-                  <div className="flex items-center gap-2 mb-3">
-                    <div className="w-8 h-8 bg-blue-600 rounded flex items-center justify-center">
-                      <Lightbulb className="w-4 h-4 text-white" />
-                    </div>
-                    <div>
-                      <div className="font-medium text-sm">Custom Ratio</div>
-                      <div className="text-xs text-gray-500">(Control/Variant)</div>
-                    </div>
-                  </div>
-                  <ul className="text-xs text-gray-700 space-y-1">
-                    <li>• Set your own percentages</li>
-                  </ul>
-                </div>
+                ))}
               </div>
             </div>
 
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
-              <h3 className="font-semibold text-gray-900 mb-4">Test Summary</h3>
-              <div className="grid grid-cols-2 gap-x-8 gap-y-3 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Test Type:</span>
-                  <span className="font-medium text-gray-900">Full Page</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Target Audience:</span>
-                  <span className="font-medium text-gray-900">{targetAudience}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Success Metric:</span>
-                  <span className="font-medium text-gray-900">{successMetric}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Traffic Split:</span>
-                  <span className="font-medium text-gray-900">
-                    {trafficSplit === 'Custom Ratio' && customControl && customVariant ?
-                      `${customControl}/${customVariant}` :
-                      trafficSplit.includes('50/50') ? '50/50' :
-                      trafficSplit.includes('80/20') ? '80/20' : '50/50'}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </>
-        )}
-
-        <div className="bg-purple-50 border border-purple-200 rounded-lg p-5 mb-6">
-          <div className="flex items-start gap-3">
-            <Lightbulb className="w-5 h-5 text-purple-600 mt-0.5" />
-            <div className="flex-1">
-              <h3 className="font-medium text-gray-900 mb-2">
-                {currentStep === 1 && 'AI Suggestions'}
-                {currentStep === 2 && testType === 'full-page' && 'AI Page Analysis'}
-                {currentStep === 2 && testType === 'fragmented' && 'AI Fragment Suggestions'}
-                {currentStep === 2 && testType === 'targeted' && 'AI Target Suggestions'}
-                {currentStep === 3 && 'AI Traffic Recommendation'}
-              </h3>
-              <p className="text-sm text-gray-600 mb-3">
-                {currentStep === 1 && 'Based on similar pages, popular full page tests include:'}
-                {currentStep === 2 && testType === 'full-page' && 'Recommendations for full page optimization'}
-                {currentStep === 2 && testType === 'fragmented' && 'Optimization ideas for this section'}
-                {currentStep === 2 && testType === 'targeted' && 'Optimization suggestions for your variants'}
-                {currentStep === 3 && 'Based on your traffic'}
-              </p>
-              <div className="space-y-2">
-                {currentStep === 1 && (
-                  <>
-                    <div className="bg-white p-3 rounded border border-purple-100">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-sm font-medium">Simplified vs. Feature-Rich Layout</span>
-                        <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded">High Impact</span>
-                      </div>
-                      <p className="text-xs text-gray-600">
-                        Minimal design often increases focus and conversions by 30-34%
-                      </p>
-                    </div>
-                    <div className="bg-white p-3 rounded border border-purple-100">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-sm font-medium">Single Column vs. Multi-Column Layout</span>
-                        <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded">Medium Impact</span>
-                      </div>
-                      <p className="text-xs text-gray-600">
-                        Layout changes can significantly impact time-on-site and engagement
-                      </p>
-                    </div>
-                  </>
-                )}
-                {currentStep === 2 && testType === 'full-page' && (
-                  <div className="bg-white p-3 rounded border border-purple-100">
-                    <div className="flex items-start gap-2">
-                      <Lightbulb className="w-4 h-4 text-purple-600 mt-0.5 flex-shrink-0" />
-                      <div>
-                        <p className="text-sm font-medium mb-1">Layout suggestion:</p>
-                        <p className="text-xs text-gray-600">
-                          Consider a side-by-side hero layout. Similar pages see 23% higher engagement.
-                        </p>
-                        <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded inline-block mt-2">High Impact</span>
-                      </div>
-                    </div>
-                  </div>
-                )}
-                {currentStep === 2 && testType === 'fragmented' && (
-                  <>
-                    <div className="bg-white p-3 rounded border border-purple-100">
-                      <div className="flex items-start gap-2">
-                        <Lightbulb className="w-4 h-4 text-purple-600 mt-0.5 flex-shrink-0" />
-                        <div>
-                          <p className="text-sm font-medium mb-1">Keep Image and text balance</p>
-                          <p className="text-xs text-gray-600">Visual-to-text ratio is key in click-rate</p>
+            <div className="space-y-8">
+                <div className="relative">
+                    <label className="block text-sm font-semibold mb-2 text-gray-700">Target Audience</label>
+                    <button
+                        onClick={() => setShowTargetAudienceDropdown(!showTargetAudienceDropdown)}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg flex justify-between items-center bg-white hover:border-blue-400 transition-all"
+                    >
+                        <span className="text-sm">{targetAudience}</span>
+                        <ChevronDown size={16} />
+                    </button>
+                    {showTargetAudienceDropdown && (
+                        <div className="absolute z-30 w-full border mt-2 rounded-lg bg-white shadow-xl py-1">
+                        {targetAudiences.map((a) => (
+                            <button
+                            key={a}
+                            onClick={() => {
+                                setTargetAudience(a);
+                                setShowTargetAudienceDropdown(false);
+                            }}
+                            className="block w-full text-left px-4 py-3 hover:bg-blue-50 text-sm font-medium text-gray-700"
+                            >
+                            {a}
+                            </button>
+                        ))}
                         </div>
-                      </div>
-                    </div>
-                    <div className="bg-white p-3 rounded border border-purple-100">
-                      <div className="flex items-start gap-2">
-                        <Lightbulb className="w-4 h-4 text-purple-600 mt-0.5 flex-shrink-0" />
-                        <div>
-                          <p className="text-sm font-medium mb-1">Simplify heading hierarchy</p>
-                          <p className="text-xs text-gray-600">Reduce font size if your text heading is larger than subtext</p>
+                    )}
+                </div>
+
+                <div className="relative">
+                    <label className="block text-sm font-semibold mb-2 text-gray-700">Traffic Distribution</label>
+                    <button
+                        onClick={() => setShowTrafficSplitDropdown(!showTrafficSplitDropdown)}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg flex justify-between items-center bg-white hover:border-blue-400 transition-all"
+                    >
+                        <span className="text-sm">{trafficSplit}</span>
+                        <ChevronDown size={16} />
+                    </button>
+                    {showTrafficSplitDropdown && (
+                        <div className="absolute z-30 w-full border mt-2 rounded-lg bg-white shadow-xl py-1">
+                        {trafficSplits.map((s) => (
+                            <button
+                            key={s}
+                            onClick={() => {
+                                setTrafficSplit(s);
+                                if (s === '50/50 (Control vs Variant)') setCustomPercentage(50);
+                                if (s === '80/20 (Control vs Variant)') setCustomPercentage(80);
+                                setShowTrafficSplitDropdown(false);
+                            }}
+                            className="block w-full text-left px-4 py-3 hover:bg-blue-50 text-sm font-medium text-gray-700"
+                            >
+                            {s}
+                            </button>
+                        ))}
                         </div>
-                      </div>
-                    </div>
-                  </>
-                )}
-                {currentStep === 2 && testType === 'targeted' && (
-                  <div className="bg-white p-3 rounded border border-purple-100">
-                    <div className="flex items-start gap-2">
-                      <Lightbulb className="w-4 h-4 text-purple-600 mt-0.5 flex-shrink-0" />
-                      <div>
-                        <p className="text-sm font-medium mb-1">High Contrasts Buttons</p>
-                        <p className="text-xs text-gray-600">Keep all colors in control of the user</p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-                {currentStep === 3 && (
-                  <div className="bg-white p-3 rounded border border-purple-100">
-                    <div className="flex items-start gap-2">
-                      <Lightbulb className="w-4 h-4 text-purple-600 mt-0.5 flex-shrink-0" />
-                      <p className="text-sm text-gray-700">
-                        Based on your URL traffic, we recommend a 14-day test duration for 80% confidence level with approximately 1,000 daily visitors.
-                      </p>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
+                    )}
 
-        {currentStep === 1 && (
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-5 mb-6">
-            <div className="flex items-start gap-3">
-              <Zap className="w-5 h-5 text-blue-600 mt-0.5" />
-              <div className="flex-1">
-                <h3 className="font-medium text-gray-900 mb-2">Effectiveness Predictor</h3>
-                <p className="text-sm text-gray-600 mb-3">
-                  Real-time score as you select test type and goal
-                </p>
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="flex-1 bg-gray-200 rounded-full h-2">
-                    <div className="bg-blue-600 h-2 rounded-full" style={{width: '30%'}}></div>
-                  </div>
-                  <span className="text-sm font-medium text-gray-700">30%</span>
+                    {trafficSplit === 'Custom Ratio' && (
+                        <div className="mt-4 p-6 bg-gray-50 rounded-xl border border-gray-200 animate-in fade-in duration-300">
+                            <div className="flex justify-between items-center mb-6">
+                                <div className="text-center">
+                                    <span className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest">Control (A)</span>
+                                    <span className="text-2xl font-black text-blue-600">{customPercentage}%</span>
+                                </div>
+                                <div className="h-10 w-px bg-gray-300"></div>
+                                <div className="text-center">
+                                    <span className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest">Variation (B)</span>
+                                    <span className="text-2xl font-black text-teal-600">{100 - customPercentage}%</span>
+                                </div>
+                            </div>
+                            <input
+                                type="range"
+                                min="0"
+                                max="100"
+                                step="1"
+                                value={customPercentage}
+                                onChange={(e) => setCustomPercentage(parseInt(e.target.value))}
+                                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                            />
+                        </div>
+                    )}
                 </div>
-                <p className="text-xs text-blue-700 font-medium">
-                  Add more details to improve test effectiveness
-                </p>
-              </div>
             </div>
           </div>
         )}
 
-        {/* Success Modal */}
-        {showSuccessModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg shadow-xl p-6 max-w-md w-full mx-4 border-4 border-blue-500 relative">
-              
-              <button 
-                onClick={() => setShowSuccessModal(false)}
-                className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
-                aria-label="Close modal"
-              >
-                <X className="w-6 h-6" />
-              </button>
-
-              <h2 className="text-xl font-bold text-gray-900 mb-3">
-                Test Launched Successfully!
-              </h2>
-              <p className="text-gray-600 text-sm mb-4">
-                Your A/B test is now live and collecting data.
-              </p>
-              <div className="bg-gray-50 rounded p-3 mb-4 space-y-1">
-                <div className="flex items-start gap-2">
-                  <span className="text-gray-500 text-xs">•</span>
-                  <p className="text-sm text-gray-700">Test: {testName || 'Homepage Hero - CTA Button Color'}</p>
-                </div>
-                <div className="flex items-start gap-2">
-                  <span className="text-gray-500 text-xs">•</span>
-                  <p className="text-sm text-gray-700">Type: {testType ? testTypes.find(t => t.value === testType)?.label : 'Full Page Test'}</p>
-
-                </div>
-              </div>
-              <p className="text-xs text-gray-600 mb-4">
-                Monitor progress in your dashboard while AI analyzes patterns in real time.
-              </p>
-              <div className="flex gap-3">
-                <button
-                  onClick={() => {
-                    setShowSuccessModal(false);
-                    navigate("/Pagename"); // 👈 redirects to dashboard page
-                  }}
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded text-sm font-medium text-gray-700 hover:bg-gray-50"
-                >
-                  View Dashboard
-                </button>
-                <button
-                  onClick={() => {
-                    setShowSuccessModal(false);
-                    setCurrentStep(1);
-                    setTestName('');
-                    setTestType('');
-                    setPageUrl('');
-                    navigate('/Testcreatepage');
-                  }}
-                  className="flex-1 px-4 py-2 bg-blue-600 rounded text-sm font-medium text-white hover:bg-blue-700"
-                >
-                  Create New Test
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* 2. Add the Draft Saved Modal JSX */}
-        {showDraftModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-xl border-4 border-blue-600 max-w-md w-full relative shadow-xl">
-              <button
-                onClick={() => setShowDraftModal(false)}
-                className="absolute -top-4 -right-4 w-12 h-12 bg-gray-500 rounded-full flex items-center justify-center hover:bg-gray-600 transition-colors"
-                aria-label="Close draft modal"
-              >
-                <X className="w-6 h-6 text-white" />
-              </button>
-              
-              <div className="p-6">
-                <h2 className="text-xl font-bold text-gray-900 mb-3">Draft Saved</h2>
-                
-                <p className="text-gray-700 mb-4">
-                  Your test has been successfully saved as a draft.
-                </p>
-                
-                <ul className="space-y-1 mb-4 text-sm text-gray-700">
-                  {/* You can make this dynamic later if you want */}
-                  <li>• Test: {testName || 'Pricing Page - Annual vs Monthly'}</li>
-                  <li>• Saved: Just Now</li>
-                </ul>
-                
-                <p className="text-sm text-gray-600 mb-6">
-                  All your progress has been saved. You can return to this draft anytime from your <span className="font-semibold">Drafts</span> tab to continue where you left off.
-                </p>
-                
-                <div className="flex gap-3">
-                  <button
-                    onClick={() => setShowDraftModal(false)}
-                    className="flex-1 px-4 py-2 bg-white border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium"
-                  >
-                    Continue Editing
-                  </button>
-                  <button
-                    onClick={() => {
-                      setShowDraftModal(false);
-                      // You might want to navigate to a drafts page here
-                      // navigate("/drafts"); 
-                    }}
-                    className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium"
-                  >
-                    View All Drafts
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-
-        {/* Navigation Buttons */}
-        <div className="flex justify-between items-center">
+        {/* Action Buttons */}
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mt-12 pt-8 border-t border-gray-200">
           <button
             onClick={handlePrevStepClick}
-            className={`px-4 py-2 border border-gray-300 rounded text-sm font-medium flex items-center gap-2 ${
-              currentStep === 1 ? 'hover:bg-gray-50' : 'hover:bg-gray-50'
-            }`}
+            className="w-full sm:w-auto px-8 py-3 border border-gray-300 rounded-xl text-sm font-semibold text-gray-600 hover:bg-white hover:shadow-md transition-all active:scale-95"
           >
-            ← {currentStep === 1 ? 'Back to Dashboard' : 'Previous'}
+            {currentStep === 1 ? '← Back to Dashboard' : '← Previous Step'}
           </button>
-          <div className="flex gap-3">
-            {/* 3. Connect the "Save as Draft" button */}
-            <button 
+
+          <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+            <button
               onClick={() => setShowDraftModal(true)}
-              className="px-4 py-2 border border-gray-300 rounded text-sm font-medium hover:bg-gray-50"
+              className="px-8 py-3 border border-gray-300 rounded-xl text-sm font-semibold text-gray-600 hover:bg-white hover:shadow-md transition-all"
             >
-              Save as Draft
+              Save Draft
             </button>
             <button
               onClick={handleLaunchTest}
-              className={`px-4 py-2 rounded text-sm font-medium text-white flex items-center gap-2 ${
-                currentStep === 3 ? 'bg-teal-600 hover:bg-teal-700' : 'bg-blue-600 hover:bg-blue-700'
-              }`}
+              className={`px-10 py-3 text-white rounded-xl font-bold shadow-lg transition-all transform active:scale-95
+                ${currentStep === 3 ? 'bg-teal-600 hover:bg-teal-700 shadow-teal-200' : 'bg-blue-600 hover:bg-blue-700 shadow-blue-200'}`}
             >
               {currentStep === 3 ? 'Launch Test' : 'Next Step →'}
             </button>
           </div>
         </div>
 
+        {/* Success Modal */}
+        {showSuccessModal && (
+            <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+              <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full border-t-8 border-teal-500 relative animate-in zoom-in-95">
+                <button onClick={() => setShowSuccessModal(false)} className="absolute top-4 right-4 text-gray-300 hover:text-gray-900">
+                    <X size={24} />
+                </button>
+                
+                <h2 className="text-2xl font-bold text-gray-900 mb-2 text-center">Test Launched!</h2>
+                <p className="text-gray-500 text-sm text-center mb-6">Your experiment is now active and collecting data.</p>
+                
+                <div className="bg-gray-50 rounded-xl p-4 mb-8 space-y-2 border border-gray-100 text-sm">
+                    <div className="flex justify-between">
+                        <span className="text-gray-500 font-medium">Test Name:</span>
+                        <span className="font-bold text-gray-800">{testName || 'Untitled'}</span>
+                    </div>
+                    <div className="flex justify-between">
+                        <span className="text-gray-500 font-medium">Distribution:</span>
+                        <span className="font-bold text-teal-600">
+                            {trafficSplit === 'Custom Ratio' ? `${customPercentage}% / ${100 - customPercentage}%` : trafficSplit.split(' ')[0]}
+                        </span>
+                    </div>
+                </div>
+
+                <div className="flex gap-3 mt-6">
+                  <button
+                    onClick={() => navigate("/Pagename")}
+                    className="flex-1 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-all shadow-lg text-sm"
+                  >
+                    View Dashboard
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowSuccessModal(false);
+                      setCurrentStep(1);
+                    }}
+                    className="flex-1 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-all shadow-lg text-sm"
+                  >
+                    Create New Test 
+                  </button>
+                </div>
+              </div>
+            </div>
+        )}
+
+        {/* Draft Modal */}
+        {showDraftModal && (
+            <div className="fixed inset-0 bg-gray-900/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full border-t-8 border-blue-600 relative">
+                <button onClick={() => setShowDraftModal(false)} className="absolute top-4 right-4 text-gray-300 hover:text-gray-900">
+                    <X size={24} />
+                </button>
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">Draft Saved Successfully</h2>
+                <p className="text-gray-500 text-sm mb-8 leading-relaxed">You can return to complete this test setup at any time from your dashboard.</p>
+                <div className="flex gap-3">
+                    <button
+                        onClick={() => setShowDraftModal(false)}
+                        className="flex-1 px-4 py-3 border border-gray-200 rounded-xl text-sm font-bold text-gray-700"
+                    >
+                        Continue Editing
+                    </button>
+                    <button
+                        onClick={() => navigate("/Pagename")}
+                        className="flex-1 px-4 py-3 bg-blue-600 text-white rounded-xl font-bold"
+                    >
+                        Go to Dashboard
+                    </button>
+                </div>
+            </div>
+            </div>
+        )}
       </div>
     </div>
-  );
+  ); 
 };
 
 export default TestCreationFlow;
