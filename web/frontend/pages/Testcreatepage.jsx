@@ -36,6 +36,7 @@ const TestCreationFlow = () => {
   const [showTrafficSplitDropdown, setShowTrafficSplitDropdown] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showDraftModal, setShowDraftModal] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false); // Added loading state
 
   // Helper to ensure URL is valid for iframe
   const formatUrl = (url) => {
@@ -80,9 +81,48 @@ const TestCreationFlow = () => {
     else setCurrentStep(currentStep - 1);
   };
 
-  const handleLaunchTest = () => {
-    if (currentStep === 3) setShowSuccessModal(true);
-    else handleNextStep();
+  // --- UPDATED BACKEND CONNECTIVITY ---
+  const handleLaunchTest = async () => {
+    if (currentStep === 3) {
+      setIsSubmitting(true);
+      
+      // Calculate final distribution string for the backend
+      const distribution = trafficSplit === 'Custom Ratio' 
+        ? `${customPercentage}% / ${100 - customPercentage}%` 
+        : trafficSplit.split(' ')[0];
+
+      try {
+        const response = await fetch('/api/tests', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            testName: testName || "Untitled Test",
+            variantAUrl: variantAUrl,
+            variantBUrl: variantBUrl,
+            // We can send these too if you update your Prisma schema later
+            targetAudience: targetAudience,
+            expectedLift: "Calculating...", 
+            status: "Test is running"
+          }),
+        });
+
+        if (response.ok) {
+          setShowSuccessModal(true);
+        } else {
+          const errorData = await response.json();
+          alert("Error saving test: " + (errorData.error || "Unknown error"));
+        }
+      } catch (error) {
+        console.error("Failed to connect to backend:", error);
+        alert("Could not connect to the server. Please ensure your backend is running.");
+      } finally {
+        setIsSubmitting(false);
+      }
+    } else {
+      handleNextStep();
+    }
   };
 
   return (
@@ -167,7 +207,7 @@ const TestCreationFlow = () => {
           </div>
         )}
 
-        {/* STEP 2 — Variant Preview (X-FRAME / IFRAME) */}
+        {/* STEP 2 — Variant Preview */}
         {currentStep === 2 && (
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 mb-6">
             <div className="flex justify-between items-start mb-6">
@@ -182,7 +222,6 @@ const TestCreationFlow = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-6">
-              {/* Variant A Iframe */}
               <div className="space-y-3">
                 <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest">Variant A (Control)</h3>
                 <div className="h-96 border rounded-xl overflow-hidden bg-gray-100 relative group">
@@ -202,7 +241,6 @@ const TestCreationFlow = () => {
                 </div>
               </div>
 
-              {/* Variant B Iframe */}
               <div className="space-y-3">
                 <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest">Variant B (Variation)</h3>
                 <div className="h-96 border rounded-xl overflow-hidden bg-gray-100 relative group">
@@ -230,7 +268,6 @@ const TestCreationFlow = () => {
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 mb-6">
             <h2 className="text-lg font-semibold mb-1 text-gray-900">Goals & Traffic</h2>
             
-            {/* Goals - Grid */}
             <div className="mb-10 mt-6">
               <label className="block text-sm font-semibold mb-4 text-gray-700">Select Conversion Goals</label>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
@@ -339,7 +376,8 @@ const TestCreationFlow = () => {
         <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mt-12 pt-8 border-t border-gray-200">
           <button
             onClick={handlePrevStepClick}
-            className="w-full sm:w-auto px-8 py-3 border border-gray-300 rounded-xl text-sm font-semibold text-gray-600 hover:bg-white hover:shadow-md transition-all active:scale-95"
+            disabled={isSubmitting}
+            className="w-full sm:w-auto px-8 py-3 border border-gray-300 rounded-xl text-sm font-semibold text-gray-600 hover:bg-white hover:shadow-md transition-all active:scale-95 disabled:opacity-50"
           >
             {currentStep === 1 ? '← Back to Dashboard' : '← Previous Step'}
           </button>
@@ -347,16 +385,18 @@ const TestCreationFlow = () => {
           <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
             <button
               onClick={() => setShowDraftModal(true)}
-              className="px-8 py-3 border border-gray-300 rounded-xl text-sm font-semibold text-gray-600 hover:bg-white hover:shadow-md transition-all"
+              disabled={isSubmitting}
+              className="px-8 py-3 border border-gray-300 rounded-xl text-sm font-semibold text-gray-600 hover:bg-white hover:shadow-md transition-all disabled:opacity-50"
             >
               Save Draft
             </button>
             <button
               onClick={handleLaunchTest}
-              className={`px-10 py-3 text-white rounded-xl font-bold shadow-lg transition-all transform active:scale-95
+              disabled={isSubmitting}
+              className={`px-10 py-3 text-white rounded-xl font-bold shadow-lg transition-all transform active:scale-95 disabled:opacity-50
                 ${currentStep === 3 ? 'bg-teal-600 hover:bg-teal-700 shadow-teal-200' : 'bg-blue-600 hover:bg-blue-700 shadow-blue-200'}`}
             >
-              {currentStep === 3 ? 'Launch Test' : 'Next Step →'}
+              {isSubmitting ? 'Saving...' : currentStep === 3 ? 'Launch Test' : 'Next Step →'}
             </button>
           </div>
         </div>
@@ -396,6 +436,10 @@ const TestCreationFlow = () => {
                     onClick={() => {
                       setShowSuccessModal(false);
                       setCurrentStep(1);
+                      // Clear form
+                      setTestName('');
+                      setVariantAUrl('');
+                      setVariantBUrl('');
                     }}
                     className="flex-1 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-all shadow-lg text-sm"
                   >

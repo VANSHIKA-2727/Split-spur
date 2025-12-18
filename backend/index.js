@@ -1,124 +1,122 @@
-// This old script code is correctly commented out
-// import { PrismaClient } from "@prisma/client";
-// import dotenv from "dotenv";
-// dotenv.config(); // Loads DATABASE_URL from .env
-// const prisma = new PrismaClient();
-// async function main() {
-//   const user = await prisma.user.create({
-//     data: {
-//       email: "geet@gmail.com",
-//       name: "Geetika",
-//     },
-//   });
-//   console.log("✅ User created:", user);
-// }
-// main()
-//   .catch((e) => {
-//     console.error("❌ Error:", e);
-//   })
-//   .finally(async () => {
-//     await prisma.$disconnect();
-//   });
+// backend/index.js
 
-// --- Server Code Starts Here ---
 import { PrismaClient } from "@prisma/client";
 import express from "express";
 import cors from "cors";
 import bcrypt from "bcryptjs";
 
-// Initialize express app and prisma
 const app = express();
 const prisma = new PrismaClient();
 
 // Middleware
-app.use(cors()); // Allows requests from your frontend
-app.use(express.json()); // Allows server to read JSON from request body
+app.use(cors()); 
+app.use(express.json()); 
+
+// --- DEBUGGING LOG ---
+// This will print your available models to the terminal when the server starts
+console.log("Available Prisma Models:", Object.keys(prisma).filter(key => !key.startsWith('$') && !key.startsWith('_')));
+
+// --- NEW TEST ROUTES ---
 
 /*
- * POST /api/register
- * Creates a new user
- * Expects { email, name, password } in the request body
+ * POST /api/tests
+ * Saves a new test created from Testcreatepage.jsx
  */
-app.post("/api/register", async (req, res) => {
+app.post("/api/tests", async (req, res) => {
   try {
-    const { email, name, password } = req.body;
+    console.log("📥 Incoming data from frontend:", req.body);
 
-    // 1. Check if user already exists
-    const existingUser = await prisma.user.findUnique({
-      where: { email },
-    });
+    const { testName, variantAUrl, variantBUrl } = req.body;
 
-    if (existingUser) {
-      return res.status(400).json({ error: "Email already in use." });
-    }
-
-    // 2. Hash the password
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // 3. Create the new user
-    const user = await prisma.user.create({
+    // Use lowercase 'test' to match standard Prisma generation
+    const newTest = await prisma.test.create({
       data: {
-        email,
-        name,
-        password: hashedPassword,
+        testName: testName || "Untitled Test",
+        variantAUrl: variantAUrl || "",
+        variantBUrl: variantBUrl || "",
+        status: "Active", 
+        visitors: 0,
       },
     });
 
-    console.log("✅ User created:", user);
-    // 4. Send back the created user (without the password)
+    console.log("✅ Saved to database successfully:", newTest);
+    res.status(201).json(newTest);
+  } catch (error) {
+    console.error("❌ CRITICAL DATABASE ERROR:", error);
+    res.status(500).json({ error: "Could not save to database. Check terminal logs." });
+  }
+});
+app.get("/api/insights", async (req, res) => {
+  try {
+    const insights = await prisma.insight.findMany({
+      orderBy: { createdAt: "desc" }
+    });
+    res.json(insights);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch insights" });
+  }
+});
+
+
+/*
+ * GET /api/tests
+ * Retrieves all tests to display on Pagename.jsx (Dashboard)
+ */
+app.get("/api/tests", async (req, res) => {
+  try {
+    // Use lowercase 'test' here as well
+    const allTests = await prisma.test.findMany({
+      orderBy: { createdAt: 'desc' }
+    });
+    res.status(200).json(allTests);
+  } catch (e) {
+    console.error("❌ Error fetching tests:", e);
+    res.status(500).json({ error: "Could not retrieve tests." });
+  }
+});
+
+
+// --- EXISTING USER ROUTES ---
+
+app.post("/api/register", async (req, res) => {
+  try {
+    const { email, name, password } = req.body;
+    const existingUser = await prisma.user.findUnique({ where: { email } });
+    if (existingUser) return res.status(400).json({ error: "Email already in use." });
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const user = await prisma.user.create({
+      data: { email, name, password: hashedPassword },
+    });
+
     const { password: _, ...userWithoutPassword } = user;
     res.status(201).json(userWithoutPassword);
-
   } catch (e) {
-    console.error("❌ Error:", e);
     res.status(500).json({ error: "Something went wrong." });
   }
 });
 
-/*
- * POST /api/login
- * Authenticates an existing user
- * Expects { email, password } in the request body
- */
 app.post("/api/login", async (req, res) => {
   try {
     const { email, password } = req.body;
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) return res.status(401).json({ error: "Invalid email or password." });
 
-    // 1. Find the user by email
-    const user = await prisma.user.findUnique({
-      where: { email },
-    });
-
-    // 2. If user doesn't exist, send error
-    if (!user) {
-      return res.status(401).json({ error: "Invalid email or password." });
-    }
-
-    // 3. Check if the submitted password is correct
     const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) return res.status(401).json({ error: "Invalid email or password." });
 
-    if (!isPasswordValid) {
-      return res.status(401).json({ error: "Invalid email or password." });
-    }
-
-    // 4. Send back user data (without the password)
     const { password: _, ...userWithoutPassword } = user;
     res.status(200).json(userWithoutPassword);
-
   } catch (e) {
-    console.error("❌ Error:", e);
     res.status(500).json({ error: "Something went wrong." });
   }
 });
 
-
-// Start the server
-const PORT = 3001; // We'll run the backend on port 3001
+const PORT = 3001; 
 app.listen(PORT, () => {
-  console.log(`🚀 Server running at http://localhost:${PORT}`);
+  console.log(`🚀 Backend server running at http://localhost:${PORT}`);
 });
 
-// Graceful shutdown for Prisma
 process.on("beforeExit", async () => {
   await prisma.$disconnect();
 });
