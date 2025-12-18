@@ -83,7 +83,7 @@ export default function PricingPage() {
     // For Professional, which is highlighted, we might want a different path or just go to signup
     // For this example, we'll navigate all "Start Free Trial" buttons to the Login page
     if (planName !== 'Enterprise') {
-        navigate('/Loginpage');
+        navigate('/Testcreatepage');
     } else {
         // For Enterprise, you might want to open a contact form modal or a different page
         navigate('/ContactSales'); // Assuming you have a ContactSales route

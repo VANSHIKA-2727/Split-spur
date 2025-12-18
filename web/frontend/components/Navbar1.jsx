@@ -59,20 +59,8 @@ const Navbar1 = () => {
         
         {/* Desktop Auth Buttons */}
         <div className="hidden md:flex items-center gap-3">
-          <button
-            // This navigate call will now work correctly
-            onClick={() => navigate('/Loginpage')}
-            className="px-4 py-2 text-gray-700 hover:text-gray-900"
-          >
-            Login
-          </button>
-          <button
-            // This navigate call will now work correctly
-            onClick={() => navigate('/Signup')}
-            className="px-5 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
-          >
-            Sign Up
-          </button>
+          
+          
         </div>
 
         {/* --- Mobile Hamburger Button --- */}
@@ -115,18 +103,8 @@ const Navbar1 = () => {
 
           {/* Mobile Auth Buttons */}
           <div className="border-t border-gray-200 pt-4 mt-2 flex flex-col space-y-2">
-            <button
-              onClick={() => handleMobileNav('/Loginpage')}
-              className="w-full text-left py-2 px-3 rounded text-gray-700 hover:bg-gray-50"
-            >
-              Login
-            </button>
-            <button
-              onClick={() => handleMobileNav('/Signup')}
-              className="w-full text-left px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
-            >
-              Sign Up
-            </button>
+            
+            
           </div>
         </nav>
       </div>

@@ -30,7 +30,7 @@ export default function Navbar() {
         <div className="flex items-center gap-8">
           {/* Logo */}
           <div
-            onClick={() => navigate('/Loginpage')}
+            onClick={() => navigate('/Pagename')}
             className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
           >
             <div className="w-6 h-6 bg-black rounded"></div>
@@ -59,7 +59,7 @@ export default function Navbar() {
         <div className="flex items-center gap-2 md:gap-4">
           {/* Create New Test Button (Responsive) */}
           <button
-            onClick={() => navigate('/Splitspurpage')}
+            onClick={() => navigate('/TestCreatepage')}
             className="bg-blue-600 text-white p-2 md:px-4 md:py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors flex items-center justify-center gap-1"
           >
             {/* Show icon on all sizes */}

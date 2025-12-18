@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Loginpage from "./pages/Loginpage.jsx";
+
 import Pagename from "./pages/Pagename.jsx";
-import Signup from "./pages/Signup.jsx";
+
 import Testcreatepage from "./pages/Testcreatepage.jsx";
 import Viewreport from "./pages/Viewreport.jsx";
 import Analyticspage from "./pages/Analyticspage.jsx";
@@ -14,17 +14,16 @@ import Features from "./pages/Features.jsx";
 import Pricing from "./pages/Pricing.jsx";
 import Start from "./pages/Start.jsx";
 import Navbar1 from "./components/Navbar1.jsx";
-import MainPage from "./abtesting/MainPage.jsx";
-import Splitspurpage from "./testing/Splitspurpage.jsx";
+
 import React from "react";
 export default function App() {
   return (
     <Router>
       <Routes>
         <Route path="/" element={<Landing />} />
-        <Route path="/Loginpage" element={<Loginpage />} />
+        
         <Route path="/Pagename" element={<Pagename />} />
-        <Route path="/Signup" element={<Signup />} />
+      
         <Route path ="/Testcreatepage" element={<Testcreatepage/>}/>
         <Route path ="/Viewreport" element={<Viewreport/>}/>
         <Route path ="/Navbar" element={<Navbar/>}/>
@@ -36,8 +35,6 @@ export default function App() {
         <Route path="Pricing" element={<Pricing/>}/>
         <Route path="Start" element={<Start/>} />
         <Route path="Navbar1" element={<Navbar1/>} />
-        <Route path="/MainPage" element={<MainPage />} />
-        <Route path="/Splitspurpage" element={<Splitspurpage />} />
         <Route path="*" element={<div>404 Not Found</div>} />
         
         
