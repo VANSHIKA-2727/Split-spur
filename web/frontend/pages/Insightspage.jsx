@@ -259,10 +259,14 @@ export default function InsightsPage() {
         {currentView === 'patterns' && renderPatterns()}
         {currentView === 'segments' && renderSegments()}
 
-        <button className="mt-8 flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50">
-          <ArrowLeft className="w-4 h-4" />
-          Back to Dashboard
-        </button>
+        <button 
+         // REDIRECTION LOGIC
+         onClick={() => navigate("/Pagename")} // 👈 Redirect to Dashboard page
+         className="mt-6 flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 font-medium text-gray-700 transition-colors"
+       >
+         <ArrowLeft className="w-4 h-4" />
+         Back to Dasboard 
+       </button>
       </main>
     </div>
   );

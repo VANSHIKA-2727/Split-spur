@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { TrendingUp, Users, Target, ArrowLeft, Calendar } from 'lucide-react';
 import Navbar from '../components/Navbar';
+import { useNavigate } from "react-router-dom";
 
 const Analyticspage = () => {
   const [activeTab, setActiveTab] = useState('trends');
+  const navigate = useNavigate();
 
   const stats = [
     { label: 'Total Visitors', value: '158,842', icon: Users, trend: null },
@@ -281,9 +283,13 @@ const Analyticspage = () => {
         )}
 
         {/* Back Button */}
-        <button className="mt-8 flex items-center gap-2 px-4 py-2 border border-gray-300 rounded text-sm font-medium text-gray-700 hover:bg-gray-50">
+         <button 
+          // REDIRECTION LOGIC
+          onClick={() => navigate("/Pagename")} // 👈 Redirect to Dashboard page
+          className="mt-6 flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 font-medium text-gray-700 transition-colors"
+        >
           <ArrowLeft className="w-4 h-4" />
-          Back to Dashboard
+          Back to Dasboard 
         </button>
 
         {/* Footer */}

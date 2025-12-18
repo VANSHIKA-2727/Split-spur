@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { TrendingUp, TrendingDown, ArrowLeft, Share2 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar } from 'recharts';
 import Navbar from '../components/Navbar';
+import { useNavigate } from "react-router-dom";
 
 export default function SplitsurDashboard() {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -16,7 +17,7 @@ export default function SplitsurDashboard() {
     { date: 'Oct 13', variant1: 3.7, variant2: 3.2 },
     { date: 'Oct 20', variant1: 4.0, variant2: 3.6 },
   ];
-
+  const navigate = useNavigate();
   const deviceData = [
     { device: 'Mobile', variant1: 3.8, variant2: 3.2 },
     { device: 'Desktop', variant1: 4.5, variant2: 3.9 },
@@ -229,10 +230,14 @@ export default function SplitsurDashboard() {
 
         {/* Action Buttons */}
         <div className="flex justify-between">
-          <button className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-md text-sm font-medium hover:bg-gray-50">
-            <ArrowLeft className="w-4 h-4" />
-            Back to Dashboard
-          </button>
+          <button 
+  // REDIRECTION LOGIC
+  onClick={() => navigate("/Pagename")} 
+  className="mt-6 flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 font-medium text-gray-700 transition-colors"
+>
+  <ArrowLeft className="w-4 h-4" />
+  Back to Dashboard 
+</button>
           <div className="flex gap-3">
             <button className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-md text-sm font-medium hover:bg-gray-50">
               <Share2 className="w-4 h-4" />

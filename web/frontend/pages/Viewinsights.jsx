@@ -137,10 +137,14 @@ export default function SplitsurInsights() {
         </div>
 
         {/* Back Button */}
-        <button className="mt-6 flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 font-medium text-gray-700">
-          <ArrowLeft className="w-4 h-4" />
-          Back to Insights
-        </button>
+        <button 
+  // REDIRECTION LOGIC
+  onClick={() => navigate("/Pagename")} // 👈 Redirect to Dashboard page
+  className="mt-6 flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 font-medium text-gray-700 transition-colors"
+>
+  <ArrowLeft className="w-4 h-4" />
+  Back to Dasboard 
+</button>
       </main>
 
       {/* Footer */}
