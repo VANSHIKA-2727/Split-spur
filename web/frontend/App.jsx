@@ -14,6 +14,7 @@ import Features from "./pages/Features.jsx";
 import Pricing from "./pages/Pricing.jsx";
 import Start from "./pages/Start.jsx";
 import Navbar1 from "./components/Navbar1.jsx";
+import Footer from "./components/Footer.jsx";
 
 import React from "react";
 export default function App() {
@@ -25,7 +26,8 @@ export default function App() {
         <Route path="/Pagename" element={<Pagename />} />
       
         <Route path ="/Testcreatepage" element={<Testcreatepage/>}/>
-        <Route path ="/Viewreport" element={<Viewreport/>}/>
+       <Route path="/Viewreport/:id" element={<Viewreport />} />
+
         <Route path ="/Navbar" element={<Navbar/>}/>
         <Route path ="Insightspage" element={<Insightspage/>}/>
         <Route path ="Testpage" element={<Testpage/>}/>
@@ -35,6 +37,8 @@ export default function App() {
         <Route path="Pricing" element={<Pricing/>}/>
         <Route path="Start" element={<Start/>} />
         <Route path="Navbar1" element={<Navbar1/>} />
+        <Route path="/Footer" element={<Footer />} />
+       
         <Route path="*" element={<div>404 Not Found</div>} />
         
         

@@ -202,7 +202,7 @@ export default function SplitspurLanding() {
                         Pause
                       </button>
                       <button
-                        onClick={() => navigate('/Viewreport')}
+                        onClick={() =>navigate(`/Viewreport/${test.id}`)}
                         className="px-6 py-2 bg-blue-600 text-white text-sm font-bold rounded-lg hover:bg-blue-700 transition-all shadow-sm active:scale-95"
                       >
                         View Report

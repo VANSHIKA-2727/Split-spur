@@ -1,77 +1,63 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Search, Filter, ChevronDown, X } from 'lucide-react';
+import { ArrowLeft, Search, Filter } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import { useNavigate } from 'react-router-dom';
+import Footer from '../components/Footer.jsx';
 
 export default function SplitsurTestsDashboard() {
   const navigate = useNavigate();
 
-  // ----------------------------------------
-  // 🟢 ADDED: Backend data state
-  // ----------------------------------------
   const [tests, setTests] = useState([]);
   const [loading, setLoading] = useState(true);
-
-  // ----------------------------------------
-  // Existing UI state (unchanged)
-  // ----------------------------------------
-  const [sortBy, setSortBy] = useState('last_updated');
-  const [showSortDropdown, setShowSortDropdown] = useState(false);
-  const [showFilterDropdown, setShowFilterDropdown] = useState(false);
-
   const [selectedStatus, setSelectedStatus] = useState('All');
   const [searchTerm, setSearchTerm] = useState('');
 
-  const [selectedUplift, setSelectedUplift] = useState([]);
-  const [selectedConfidence, setSelectedConfidence] = useState([]);
-  const [appliedUplift, setAppliedUplift] = useState([]);
-  const [appliedConfidence, setAppliedConfidence] = useState([]);
+  // ----------------------------------------
+  // Fetch tests
+  // ----------------------------------------
+  const fetchTests = async () => {
+    try {
+      const res = await fetch('/api/tests');
+      const data = await res.json();
 
-  // ----------------------------------------
-  // 🟢 ADDED: Fetch tests from backend
-  // ----------------------------------------
+      const mappedTests = data.map(test => ({
+        id: test.id,
+        title: test.testName,
+        status: test.status || 'Draft',
+        created: test.createdAt,
+        visitors: test.visitors || 0,
+      }));
+
+      setTests(mappedTests);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchTests = async () => {
-      try {
-        const res = await fetch('/api/tests');
-        const data = await res.json();
-
-        // Map Prisma → UI structure
-        const mappedTests = data.map(test => ({
-          id: test.id,
-          title: test.testName,
-          status: test.status || 'Active',
-          created: test.createdAt,
-          updated: test.createdAt,
-          visitors: test.visitors || 0,
-
-          // Temporary derived values
-          conversions: Math.floor((test.visitors || 0) * 0.12),
-          rate: test.visitors ? '12%' : '0%',
-          leadingVariant: test.visitors > 0 ? 'Variant B' : '-',
-          uplift: test.visitors > 0 ? '+8.4%' : '-',
-          confidence: test.visitors > 0 ? 72 : 0,
-        }));
-
-        setTests(mappedTests);
-      } catch (err) {
-        console.error('Failed to fetch tests', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchTests();
   }, []);
 
   // ----------------------------------------
-  // Loading state
+  // Actions
   // ----------------------------------------
+  const launchTest = async (id) => {
+    await fetch(`/api/tests/${id}/launch`, { method: 'PATCH' });
+    fetchTests();
+  };
+
+  const stopTest = async (id) => {
+    await fetch(`/api/tests/${id}/stop`, { method: 'PATCH' });
+    fetchTests();
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50">
         <Navbar />
-        <div className="flex items-center justify-center h-96 text-gray-500 font-bold">
+        <div className="h-96 flex items-center justify-center text-gray-500">
           Loading tests...
         </div>
       </div>
@@ -79,37 +65,18 @@ export default function SplitsurTestsDashboard() {
   }
 
   // ----------------------------------------
-  // Existing logic (UNCHANGED)
+  // Counts
   // ----------------------------------------
-  const activeCount = tests.filter(t => t.status === 'Active').length;
+  const totalCount = tests.length;
+  const runningCount = tests.filter(t => t.status === 'Running').length;
   const draftCount = tests.filter(t => t.status === 'Draft').length;
-  const completedCount = tests.filter(t => t.status === 'Completed').length;
+  const stoppedCount = tests.filter(t => t.status === 'Stopped').length;
 
   const tabs = [
-    { name: 'All Tests', count: tests.length, status: 'All' },
-    { name: 'Active', count: activeCount, status: 'Active' },
-    { name: 'Draft', count: draftCount, status: 'Draft' },
-    { name: 'Completed', count: completedCount, status: 'Completed' }
-  ];
-
-  const sortOptions = [
-    { value: 'last_updated', label: 'Last Updated' },
-    { value: 'created_date', label: 'Created Date' },
-    { value: 'visitors', label: 'Visitors' },
-    { value: 'highest_lift', label: 'Highest Lift' },
-    { value: 'confidence', label: 'Confidence' }
-  ];
-
-  const upliftOptions = [
-    { value: 'high_lift', label: 'High Lift (≥15%)' },
-    { value: 'medium_lift', label: 'Medium Lift (5-15%)' },
-    { value: 'low_lift', label: 'Low Lift (<5%)' },
-  ];
-
-  const confidenceOptions = [
-    { value: 'high_confidence', label: 'High (≥90%)' },
-    { value: 'medium_confidence', label: 'Medium (70-90%)' },
-    { value: 'low_confidence', label: 'Low (<70%)' },
+    { label: `All (${totalCount})`, value: 'All' },
+    { label: `Running (${runningCount})`, value: 'Running' },
+    { label: `Draft (${draftCount})`, value: 'Draft' },
+    { label: `Stopped (${stoppedCount})`, value: 'Stopped' },
   ];
 
   const filteredTests = tests.filter(test => {
@@ -118,69 +85,128 @@ export default function SplitsurTestsDashboard() {
     return true;
   });
 
-  const sortedTests = [...filteredTests].sort((a, b) => {
-    switch (sortBy) {
-      case 'created_date': return new Date(b.created) - new Date(a.created);
-      case 'visitors': return b.visitors - a.visitors;
-      case 'highest_lift': return (parseFloat(b.uplift) || 0) - (parseFloat(a.uplift) || 0);
-      case 'confidence': return b.confidence - a.confidence;
-      default: return new Date(b.updated) - new Date(a.updated);
-    }
-  });
-
-  const getStatusBadgeClass = (status) => {
-    switch (status) {
-      case 'Active': return 'bg-green-100 text-green-700';
-      case 'Draft': return 'bg-yellow-100 text-yellow-700';
-      case 'Completed': return 'bg-gray-200 text-gray-700';
-      default: return 'bg-gray-100 text-gray-700';
-    }
-  };
-
-  const handleAction = (test) => {
-    if (test.status === 'Draft') {
-      navigate('/Testcreatepage');
-    } else {
-      navigate('/Viewreport');
-    }
-  };
-
   // ----------------------------------------
-  // UI (UNCHANGED)
+  // UI
   // ----------------------------------------
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
 
       <main className="max-w-7xl mx-auto px-6 py-6">
-        <h1 className="text-2xl font-bold mb-6">All Tests</h1>
+        <h1 className="text-2xl font-bold">All Tests</h1>
+        <p className="text-sm text-gray-500 mb-6">
+          Create, launch, and analyze your A/B tests
+        </p>
 
-        {sortedTests.map(test => (
-          <div key={test.id} className="bg-white p-6 rounded-xl border mb-4">
-            <div className="flex justify-between">
+        {/* Search */}
+        <div className="bg-white border rounded-xl px-4 py-3 flex items-center gap-2 mb-4">
+          <Search size={18} className="text-gray-400" />
+          <input
+            type="text"
+            placeholder="Search tests..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full outline-none text-sm"
+          />
+        </div>
+
+        {/* Tabs */}
+        <div className="flex gap-2 mb-6 flex-wrap">
+          {tabs.map(tab => (
+            <button
+              key={tab.value}
+              onClick={() => setSelectedStatus(tab.value)}
+              className={`px-4 py-1.5 rounded-full text-sm border ${
+                selectedStatus === tab.value
+                  ? 'bg-black text-white'
+                  : 'bg-white text-gray-600'
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Test Cards */}
+        <div className="space-y-4">
+          {filteredTests.map(test => (
+            <div
+              key={test.id}
+              className="bg-white border rounded-xl p-5 flex justify-between items-center"
+            >
               <div>
-                <h3 className="text-lg font-bold">{test.title}</h3>
-                <span className={`text-xs px-2 py-1 rounded ${getStatusBadgeClass(test.status)}`}>
+                <h3 className="font-semibold">{test.title}</h3>
+
+                <span
+                  className={`text-xs font-medium px-2 py-1 rounded-full ${
+                    test.status === 'Running'
+                      ? 'bg-green-100 text-green-700'
+                      : test.status === 'Draft'
+                      ? 'bg-gray-100 text-gray-600'
+                      : 'bg-red-100 text-red-600'
+                  }`}
+                >
                   {test.status}
                 </span>
               </div>
-              <button
-                onClick={() => handleAction(test)}
-                className="px-6 py-2 bg-blue-600 text-white rounded-lg font-bold"
-              >
-                {test.status === 'Draft' ? 'Edit' : 'View Report'}
-              </button>
-            </div>
-          </div>
-        ))}
 
+              <div className="flex gap-2">
+                {test.status === 'Draft' && (
+                  <>
+                    <button
+                      onClick={() => navigate(`/Testcreatepage?id=${test.id}`)}
+                      className="px-4 py-2 border rounded-lg text-sm"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => launchTest(test.id)}
+                      className="px-4 py-2 bg-green-600 text-white rounded-lg text-sm"
+                    >
+                      Launch
+                    </button>
+                  </>
+                )}
+
+                {test.status === 'Running' && (
+                  <>
+                    <button
+                      onClick={() => navigate(`/Viewreport?id=${test.id}`)}
+                      className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm"
+                    >
+                      View Report
+                    </button>
+                    <button
+                      onClick={() => stopTest(test.id)}
+                      className="px-4 py-2 border text-red-600 rounded-lg text-sm"
+                    >
+                      Stop
+                    </button>
+                  </>
+                )}
+
+                {test.status === 'Stopped' && (
+                  <button
+                    onClick={() => navigate(`/Viewreport?id=${test.id}`)}
+                    className="px-4 py-2 bg-gray-800 text-white rounded-lg text-sm"
+                  >
+                    View Report
+                  </button>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Back */}
         <button
           onClick={() => navigate('/Pagename')}
-          className="mt-8 flex items-center gap-2 px-6 py-2 border rounded-xl"
+          className="mt-10 flex items-center gap-2 px-5 py-2 border rounded-lg bg-white"
         >
-          <ArrowLeft size={16} /> Back to Dashboard
+          <ArrowLeft size={16} /> Back
         </button>
       </main>
+      <Footer />
     </div>
   );
 }

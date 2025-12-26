@@ -1,83 +1,97 @@
-import React, { useState, useEffect } from 'react';
-import { TrendingUp, Users, Target, ArrowLeft } from 'lucide-react';
-import Navbar from '../components/Navbar';
+import React, { useState, useEffect } from "react";
+import { TrendingUp, Users, Target, ArrowLeft } from "lucide-react";
+import Navbar from "../components/Navbar";
 import { useNavigate } from "react-router-dom";
+import Footer from "../components/Footer.jsx";
 
 const Analyticspage = () => {
-  const [activeTab, setActiveTab] = useState('trends');
   const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState("trends");
 
-  // ------------------------------------------------
-  // 🟢 BACKEND STATE
-  // ------------------------------------------------
   const [tests, setTests] = useState([]);
+  const [reports, setReports] = useState({});
   const [loading, setLoading] = useState(true);
 
+  /* -----------------------------------
+      FETCH TESTS + REPORTS
+  ----------------------------------- */
   useEffect(() => {
-    const fetchTests = async () => {
+    const fetchAnalytics = async () => {
       try {
-        const res = await fetch('/api/tests');
-        const data = await res.json();
-        setTests(data);
+        const testsRes = await fetch("/api/tests");
+        const testsData = await testsRes.json();
+        setTests(testsData);
+
+        const reportMap = {};
+
+        await Promise.all(
+          testsData.map(async (test) => {
+            const res = await fetch(`/api/reports/${test.id}`);
+            const data = await res.json();
+            reportMap[test.id] = data;
+          })
+        );
+
+        setReports(reportMap);
       } catch (err) {
-        console.error('Failed to fetch analytics data', err);
+        console.error("Failed to load analytics", err);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchTests();
+    fetchAnalytics();
   }, []);
 
-  // ------------------------------------------------
-  // 🧠 DERIVED ANALYTICS (TEMP LOGIC)
-  // ------------------------------------------------
-  const totalVisitors = tests.reduce((sum, t) => sum + (t.visitors || 0), 0);
-  const totalConversions = Math.floor(totalVisitors * 0.155); // ~15.5%
-  const conversionRate = totalVisitors
-    ? ((totalConversions / totalVisitors) * 100).toFixed(2)
-    : '0.00';
+  /* -----------------------------------
+      AGGREGATED METRICS
+  ----------------------------------- */
+  let totalVisitors = 0;
+  let totalConversions = 0;
+  let totalClicks = 0;
 
-  const avgLift = tests.length
-    ? `+${(8 + Math.random() * 6).toFixed(1)}%`
-    : '+0%';
+  tests.forEach((test) => {
+    totalVisitors += test.visitors || 0;
+
+    const report = reports[test.id];
+    if (report) {
+      totalConversions +=
+        (report.A?.conversions || 0) + (report.B?.conversions || 0);
+      totalClicks +=
+        (report.A?.clicks || 0) + (report.B?.clicks || 0);
+    }
+  });
+
+  const conversionRate = totalClicks
+    ? ((totalConversions / totalClicks) * 100).toFixed(2)
+    : "0.00";
 
   const stats = [
-    { label: 'Total Visitors', value: totalVisitors.toLocaleString(), icon: Users },
-    { label: 'Total Conversions', value: totalConversions.toLocaleString(), icon: Target },
-    { label: 'Conversion Rate', value: `${conversionRate}%`, icon: TrendingUp },
-    { label: 'Avg Test Lift', value: avgLift, icon: TrendingUp }
+    {
+      label: "Total Visitors",
+      value: totalVisitors.toLocaleString(),
+      icon: Users,
+    },
+    {
+      label: "Total Conversions",
+      value: totalConversions.toLocaleString(),
+      icon: Target,
+    },
+    {
+      label: "Conversion Rate",
+      value: `${conversionRate}%`,
+      icon: TrendingUp,
+    },
+    {
+      label: "Active Tests",
+      value: tests.length,
+      icon: TrendingUp,
+    },
   ];
 
-  // ------------------------------------------------
-  // TEMP STATIC DATA (until tracking is implemented)
-  // ------------------------------------------------
-  const testVelocityData = [
-    { device: 'Desktop', avgLift: '+14.2%', convRate: '18.4%', performance: 85, tests: Math.max(1, tests.length - 1) },
-    { device: 'Mobile', avgLift: '+12.8%', convRate: '15.7%', performance: 60, tests: 1 }
-  ];
-
-  const trendData = [
-    { month: 'Jan', desktop: 35, mobile: 25 },
-    { month: 'Feb', desktop: 45, mobile: 30 },
-    { month: 'Mar', desktop: 50, mobile: 35 },
-    { month: 'Apr', desktop: 65, mobile: 40 },
-    { month: 'May', desktop: 70, mobile: 50 },
-    { month: 'Jun', desktop: 40, mobile: 30 }
-  ];
-
-  const conversionRateData = [
-    { date: 'Jan', rate: 14.2 },
-    { date: 'Feb', rate: 14.8 },
-    { date: 'Mar', rate: 15.1 },
-    { date: 'Apr', rate: 15.3 },
-    { date: 'May', rate: 15.6 },
-    { date: 'Jun', rate: 15.66 }
-  ];
-
-  // ------------------------------------------------
-  // LOADING STATE
-  // ------------------------------------------------
+  /* -----------------------------------
+      LOADING
+  ----------------------------------- */
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50">
@@ -89,98 +103,118 @@ const Analyticspage = () => {
     );
   }
 
-  // ------------------------------------------------
-  // UI
-  // ------------------------------------------------
+  /* -----------------------------------
+      UI
+  ----------------------------------- */
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
 
       <div className="max-w-7xl mx-auto px-6 py-8">
+        {/* Header */}
         <div className="mb-8">
-          <h1 className="text-2xl font-bold text-gray-900 mb-1">Analytics Overview</h1>
+          <h1 className="text-2xl font-bold text-gray-900 mb-1">
+            Analytics Overview
+          </h1>
           <p className="text-sm text-gray-500">
-            Comprehensive analytics across all your A/B tests
+            Real-time analytics across all your A/B tests
           </p>
         </div>
 
-        {/* Stats Cards */}
+        {/* Stats */}
         <div className="grid grid-cols-4 gap-4 mb-8">
           {stats.map((stat, idx) => (
-            <div key={idx} className="bg-white rounded-lg border border-gray-200 p-5">
+            <div
+              key={idx}
+              className="bg-white rounded-lg border border-gray-200 p-5"
+            >
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm text-gray-600">{stat.label}</span>
                 <stat.icon className="w-4 h-4 text-gray-400" />
               </div>
-              <div className="text-2xl font-bold text-gray-900">{stat.value}</div>
+              <div className="text-2xl font-bold text-gray-900">
+                {stat.value}
+              </div>
             </div>
           ))}
         </div>
 
         {/* Tabs */}
         <div className="flex gap-6 border-b border-gray-200 mb-6">
-          {['trends', 'velocity', 'devices'].map(tab => (
+          {["trends", "tests"].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`pb-3 px-1 text-sm font-medium border-b-2 transition-colors ${
+              className={`pb-3 px-1 text-sm font-medium border-b-2 ${
                 activeTab === tab
-                  ? 'border-blue-600 text-blue-600'
-                  : 'border-transparent text-gray-600 hover:text-gray-900'
+                  ? "border-blue-600 text-blue-600"
+                  : "border-transparent text-gray-600 hover:text-gray-900"
               }`}
             >
-              {tab === 'trends'
-                ? 'Trends'
-                : tab === 'velocity'
-                ? 'Test Velocity'
-                : 'Devices'}
+              {tab === "trends" ? "Overview" : "Test Breakdown"}
             </button>
           ))}
         </div>
 
-        {/* Trends */}
-        {activeTab === 'trends' && (
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <h2 className="text-lg font-semibold mb-4">Conversion Rate Trends</h2>
-            <p className="text-sm text-gray-500">
-              This chart will reflect real-time conversion data once tracking is live.
+        {/* Overview */}
+        {activeTab === "trends" && (
+          <div className="bg-white rounded-lg border p-6">
+            <p className="text-gray-600">
+              Analytics are computed from real user events (views, clicks,
+              conversions) collected via your tracking engine.
             </p>
           </div>
         )}
 
-        {/* Velocity */}
-        {activeTab === 'velocity' && (
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <h2 className="text-lg font-semibold mb-4">Test Velocity</h2>
-            <p className="text-sm text-gray-600">
-              Total tests created: <strong>{tests.length}</strong>
-            </p>
+        {/* Test Breakdown */}
+        {activeTab === "tests" && (
+          <div className="space-y-4">
+            {tests.map((test) => {
+              const r = reports[test.id];
+              if (!r) return null;
+
+              return (
+                <div
+                  key={test.id}
+                  className="bg-white border rounded-lg p-5"
+                >
+                  <h3 className="font-semibold text-gray-900">
+                    {test.testName}
+                  </h3>
+                  <p className="text-sm text-gray-500 mb-3">
+                    Visitors: {test.visitors}
+                  </p>
+
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <strong>Variant A</strong>
+                      <div>Conversions: {r.A.conversions}</div>
+                      <div>Rate: {r.A.conversionRate.toFixed(2)}%</div>
+                    </div>
+                    <div>
+                      <strong>Variant B</strong>
+                      <div>Conversions: {r.B.conversions}</div>
+                      <div>Rate: {r.B.conversionRate.toFixed(2)}%</div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         )}
 
-        {/* Devices */}
-        {activeTab === 'devices' && (
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
-            {testVelocityData.map((device, idx) => (
-              <div key={idx} className="mb-6">
-                <h3 className="font-semibold text-gray-900">{device.device}</h3>
-                <p className="text-sm text-gray-500">
-                  Avg Lift: {device.avgLift} • Conversion Rate: {device.convRate}
-                </p>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Back Button */}
+        {/* Back */}
         <button
           onClick={() => navigate("/Pagename")}
-          className="mt-6 flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 font-medium text-gray-700"
+          className="mt-8 flex items-center gap-2 px-4 py-2 bg-white border rounded hover:bg-gray-50"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to Dashboard
         </button>
+
+       
       </div>
+        <Footer />
     </div>
   );
 };
